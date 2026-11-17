@@ -1,0 +1,30 @@
+/* Tokens do site. Veja DESIGN.md antes de mudar. */
+:root {
+  --preto: #000000;
+  --grafite: #17181d;
+  --grafite-2: #24262d;
+  --fumaca: #8e909a;
+  --giz: #f2f1ee;
+  --volt: #ff2e93;
+  --volt-tinta: #000000;
+
+  --f-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --f-texto: "Archivo", system-ui, sans-serif;
+
+  --t-1: 0.75rem;
+  --t0: 1rem;
+  --t1: 1.333rem;
+  --t2: 1.777rem;
+  --t3: 2.369rem;
+  --t4: clamp(3rem, 9vw, 8rem);
+  --t-mega: clamp(5rem, 22vw, 26rem);
+
+  --gutter: clamp(16px, 4vw, 56px);
+  --max-texto: 64ch;
+  --raio-credencial: 14px;
+
+  --ease-batida: cubic-bezier(0.7, 0, 0.2, 1);
+  --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);
+
+  color-scheme: dark;
+}

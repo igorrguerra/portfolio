@@ -3,101 +3,51 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Seu Nome — Portfólio</title>
+  <title>Igor Guerra, desenvolvedor full stack</title>
+  <meta name="description" content="Portfólio do Igor: projetos, currículo e certificações." />
+  <meta name="theme-color" content="#000000" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Big+Shoulders+Display:wght@100..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/projetos.css" />
+  <link rel="stylesheet" href="css/documentos.css" />
+  <script defer src="data.js"></script>
+  <script defer src="js/projetos.js"></script>
+  <script defer src="js/documentos.js"></script>
+  <script defer src="js/main.js"></script>
 </head>
 <body>
-  <!-- Cursor customizado -->
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- Shell: main.js / base.css -->
+  <div class="loader" aria-hidden="true"></div>
   <div class="cursor" aria-hidden="true"></div>
+  <header class="topo" id="topo"></header>
+  <nav class="menu" id="menu" aria-label="Seções" hidden></nav>
 
-  <!-- Loader -->
-  <div class="loader" aria-hidden="true"><span class="loader-num">0</span></div>
+  <main id="conteudo">
+    <section id="hero" class="hero" aria-labelledby="hero-nome"></section>
+    <div class="marquee" aria-hidden="true"></div>
+    <section id="sobre" class="secao" aria-labelledby="sobre-titulo"></section>
 
-  <!-- Menu -->
-  <header class="header">
-    <a href="#top" class="marca">SN</a>
-    <button class="menu-toggle" aria-expanded="false" aria-controls="menu">Menu</button>
-  </header>
-  <nav class="menu" id="menu" aria-hidden="true">
-    <ul>
-      <li><a href="#sobre">Sobre</a></li>
-      <li><a href="#projetos">Projetos</a></li>
-      <li><a href="#curriculo">Currículo</a></li>
-      <li><a href="#certificacoes">Certificações</a></li>
-      <li><a href="#contato">Contato</a></li>
-    </ul>
-  </nav>
+    <!-- projetos.js / projetos.css -->
+    <section id="projetos" class="secao" aria-labelledby="projetos-titulo"></section>
 
-  <main id="top">
-    <!-- HERO -->
-    <section class="hero">
-      <p class="hero-tag">Portfólio · 2026</p>
-      <h1 class="hero-titulo">
-        <span class="linha"><span>Seu</span></span>
-        <span class="linha"><span class="destaque">Nome</span></span>
-      </h1>
-      <p class="hero-sub">Cargo / área de atuação</p>
-      <span class="scroll-hint">Role ↓</span>
-    </section>
+    <!-- documentos.js / documentos.css -->
+    <section id="curriculo" class="secao" aria-labelledby="curriculo-titulo"></section>
+    <section id="certificacoes" class="secao" aria-labelledby="certificacoes-titulo"></section>
 
-    <!-- FAIXA -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>Projetos</span><span>★</span><span>Currículo</span><span>★</span><span>Certificações</span><span>★</span>
-        <span>Projetos</span><span>★</span><span>Currículo</span><span>★</span><span>Certificações</span><span>★</span>
-      </div>
-    </div>
-
-    <!-- SOBRE -->
-    <section id="sobre" class="secao">
-      <h2 class="titulo-secao reveal">Sobre</h2>
-      <p class="texto-grande reveal">Texto curto sobre você. Substitua este parágrafo.</p>
-    </section>
-
-    <!-- PROJETOS -->
-    <section id="projetos" class="secao">
-      <h2 class="titulo-secao reveal">Projetos</h2>
-      <ul class="lista-projetos">
-        <li class="projeto reveal"><a href="#"><span class="idx">01</span><span class="nome">Projeto Um</span><span class="tipo">Categoria</span></a></li>
-        <li class="projeto reveal"><a href="#"><span class="idx">02</span><span class="nome">Projeto Dois</span><span class="tipo">Categoria</span></a></li>
-        <li class="projeto reveal"><a href="#"><span class="idx">03</span><span class="nome">Projeto Três</span><span class="tipo">Categoria</span></a></li>
-      </ul>
-    </section>
-
-    <!-- CURRÍCULO -->
-    <section id="curriculo" class="secao">
-      <h2 class="titulo-secao reveal">Currículo</h2>
-      <div class="grid-arquivos">
-        <a class="arquivo reveal" href="assets/curriculo.pdf" download>Currículo PT <span>↓</span></a>
-        <a class="arquivo reveal" href="assets/resume.pdf" download>Resume EN <span>↓</span></a>
-      </div>
-    </section>
-
-    <!-- CERTIFICAÇÕES -->
-    <section id="certificacoes" class="secao">
-      <h2 class="titulo-secao reveal">Certificações</h2>
-      <div class="grid-certs">
-        <a class="cert reveal" href="#"><span class="ano">2026</span><span class="nome">Certificação</span><span class="emissor">Emissor</span></a>
-        <a class="cert reveal" href="#"><span class="ano">2025</span><span class="nome">Certificação</span><span class="emissor">Emissor</span></a>
-        <a class="cert reveal" href="#"><span class="ano">2024</span><span class="nome">Certificação</span><span class="emissor">Emissor</span></a>
-      </div>
-    </section>
+    <!-- main.js / base.css -->
+    <section id="contato" class="secao" aria-labelledby="contato-titulo"></section>
   </main>
 
-  <!-- CONTATO / RODAPÉ -->
-  <footer id="contato" class="footer">
-    <a class="footer-email" href="mailto:seu@email.com">seu@email.com</a>
-    <ul class="footer-links">
-      <li><a href="#">LinkedIn</a></li>
-      <li><a href="#">GitHub</a></li>
-      <li><a href="#">Instagram</a></li>
-    </ul>
-    <p class="footer-gigante" aria-hidden="true">SEU NOME</p>
-  </footer>
+  <footer class="rodape" id="rodape"></footer>
 
-  <script src="main.js"></script>
+  <!-- documentos.js: visualizador de PDF e imagem -->
+  <dialog class="visualizador" id="visualizador" aria-labelledby="visualizador-titulo"></dialog>
+
+  <noscript><p class="sem-js">Este site precisa de JavaScript para mostrar o conteúdo.</p></noscript>
 </body>
 </html>
