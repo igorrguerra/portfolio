@@ -306,10 +306,14 @@
       nome.style.fontSize = getComputedStyle(heroNome).fontSize;
       nome.style.transform = "translate(" + r.left + "px," + r.top + "px)";
     }
+    // Se as fontes chegarem no meio do loader, o hero é reencaixado; realinha.
+    fontesProntas.then(function () {
+      if (nome.style.transform && !loader.classList.contains("is-fim")) alinhar();
+    });
 
-    // Espera as fontes por no máximo 250ms.
+    // Espera as fontes por no máximo 100ms, preservando o orçamento do loader.
     var espera = new Promise(function (ok) {
-      setTimeout(ok, 250);
+      setTimeout(ok, 100);
     });
     return Promise.race([fontesProntas, espera]).then(function () {
       encaixarHero();
@@ -319,16 +323,16 @@
         pesos.forEach(function (peso, i) {
           setTimeout(function () {
             nome.style.fontWeight = String(peso);
-          }, i * 110);
+          }, i * 70);
         });
         setTimeout(function () {
           loader.classList.add("is-saindo");
           raiz.classList.remove("sem-rolagem");
-        }, 480);
+        }, 240);
         setTimeout(function () {
           terminar();
           ok();
-        }, 920);
+        }, 680);
       });
     });
   }

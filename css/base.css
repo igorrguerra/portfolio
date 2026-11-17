@@ -218,7 +218,9 @@ html.sem-rolagem {
 }
 
 .sem-js {
-  position: relative;
+  position: fixed;
+  inset: 0;
+  overflow: auto;
   z-index: 300;
   margin: 0;
   padding: 24px var(--gutter);
