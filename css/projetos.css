@@ -1,11 +1,23 @@
-/* Seção de projetos. Dono: js/projetos.js. Veja DESIGN.md (Revisão 2: grade de cards). */
+/* Seção de projetos. Dono: js/projetos.js. Veja DESIGN.md (Revisão 3).
+ * Padrão (sem JS, < 1024px ou movimento reduzido): lista vertical de cards.
+ * .projetos--faixa (posta pelo JS no desktop): palco preso e faixa horizontal. */
 
-/* ---------- filtro ---------- */
+/* ---------- cabeça: título + filtro ---------- */
 
-.projetos-topo {
+.projetos__cabeca {
   display: grid;
-  gap: 12px;
-  margin-block: clamp(24px, 4vw, 48px) clamp(24px, 3vw, 40px);
+  gap: 20px;
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.projetos__titulo {
+  margin-bottom: 0;
+}
+
+.projetos__controles {
+  display: grid;
+  gap: 10px;
+  align-content: end;
 }
 
 .projetos-filtro {
@@ -14,7 +26,8 @@
   gap: 8px;
 }
 
-.projetos-filtro__botao {
+.projetos-filtro__botao,
+.projetos-filtro__mais {
   flex: none;
   min-height: 44px;
   padding: 10px 16px;
@@ -27,13 +40,38 @@
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
-.projetos-filtro__botao:hover { border-color: var(--giz); }
-.projetos-filtro__botao[aria-pressed="true"] {
-  background: var(--destaque);
+
+.projetos-filtro__mais {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 20px) 52%, calc(100% - 15px) 52%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.projetos-filtro__mais option {
+  background: var(--grafite);
+  color: var(--giz);
+}
+
+.projetos-filtro__botao:hover,
+.projetos-filtro__mais:hover {
+  border-color: var(--giz);
+}
+
+.projetos-filtro__botao[aria-pressed="true"],
+.projetos-filtro__mais.is-ativo {
+  background-color: var(--destaque);
   border-color: var(--destaque);
   color: var(--destaque-tinta);
 }
-.projetos-filtro__botao:focus-visible {
+
+.projetos-filtro__botao:focus-visible,
+.projetos-filtro__mais:focus-visible {
   outline: 2px solid var(--destaque-texto);
   outline-offset: 3px;
 }
@@ -44,17 +82,9 @@
   font: 400 var(--t0) / 1.55 var(--f-texto);
 }
 
-@media (min-width: 900px) {
-  .projetos-topo {
-    grid-template-columns: 1fr auto;
-    align-items: end;
-    gap: 24px;
-  }
-}
+/* ---------- lista (padrão) ---------- */
 
-/* ---------- grade: 1 coluna, 2 no tablet, 3 no desktop ---------- */
-
-.projetos-grade {
+.projetos__trilho {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -62,29 +92,24 @@
   grid-template-columns: minmax(0, 1fr);
   gap: clamp(16px, 2vw, 24px);
 }
-.projetos-grade[hidden] { display: none; }
 
 @media (min-width: 640px) {
-  .projetos-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .card-projeto--largo { grid-column: 1 / -1; }
-}
-@media (min-width: 640px) and (max-width: 1099px) {
-  .card-projeto--fim-tablet { grid-column: 1 / -1; }
+  .projetos__trilho {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-/* desktop: base de 6 colunas. Comum = 2 (três por fileira), destaque e "metade" = 3 (dois por fileira), largo = 6 */
 @media (min-width: 1100px) {
-  .projetos-grade { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .card-projeto { grid-column: span 2; }
-  .card-projeto--destaque,
-  .card-projeto--metade { grid-column: span 3; }
-  .card-projeto--largo,
-  .card-projeto--metade:only-child { grid-column: 1 / -1; }
+  .projetos__trilho {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.projetos__progresso {
+  display: none;
 }
 
 /* ---------- card ---------- */
-
-.card-projeto[hidden] { display: none; }
 
 .card-projeto__artigo {
   display: flex;
@@ -94,8 +119,11 @@
   border: 1px solid var(--grafite-2);
   transition: border-color 0.2s;
 }
+
 .card-projeto:hover .card-projeto__artigo,
-.card-projeto:focus-within .card-projeto__artigo { border-color: var(--destaque-texto); }
+.card-projeto:focus-within .card-projeto__artigo {
+  border-color: var(--destaque-texto);
+}
 
 .card-projeto__imagem {
   margin: 0;
@@ -104,6 +132,7 @@
   background: var(--preto);
   border-bottom: 1px solid var(--grafite-2);
 }
+
 .card-projeto__imagem img {
   display: block;
   width: 100%;
@@ -111,7 +140,11 @@
   object-fit: cover;
   transition: transform 0.6s var(--ease-saida);
 }
-.card-projeto:hover .card-projeto__imagem img { transform: scale(1.04); }
+
+.card-projeto:hover .card-projeto__imagem img {
+  transform: scale(1.04);
+}
+
 .card-projeto__imagem--vazia {
   background:
     linear-gradient(var(--grafite-2) 1px, transparent 1px) 0 0 / 40px 40px,
@@ -120,11 +153,11 @@
 }
 
 .card-projeto__corpo {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: clamp(20px, 2.2vw, 28px);
+  padding: clamp(20px, 2vw, 28px);
 }
 
 .card-projeto__meta {
@@ -135,20 +168,24 @@
   color: var(--fumaca);
   font: 500 var(--t0) / 1.3 var(--f-texto);
 }
-.card-projeto__categoria { color: var(--destaque-texto); }
-.card-projeto__ano { font-variant-numeric: tabular-nums; }
+
+.card-projeto__categoria {
+  color: var(--destaque-texto);
+}
+
+.card-projeto__ano {
+  font-variant-numeric: tabular-nums;
+}
 
 .card-projeto__nome {
   margin: 0;
   font-family: var(--f-display);
-  font-weight: 800;
-  font-size: var(--t2);
-  line-height: 0.92;
+  font-weight: 850;
+  font-size: clamp(2rem, 2.8vw, 3rem);
+  line-height: 0.9;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
   text-wrap: balance;
 }
-.card-projeto--destaque .card-projeto__nome { font-size: var(--t3); }
 
 .card-projeto__etiquetas {
   display: flex;
@@ -160,18 +197,19 @@
 .card-projeto__desc {
   margin: 0;
   max-width: var(--max-texto);
-  font: 400 var(--t0) / 1.55 var(--f-texto);
+  font: 400 var(--t0) / 1.5 var(--f-texto);
 }
+
 .card-projeto__tec {
   margin: 0;
   color: var(--fumaca);
   font: 400 var(--t0) / 1.5 var(--f-texto);
 }
+
 .card-projeto__pendente {
   margin: 0;
   color: var(--fumaca);
-  font: 400 var(--t-1) / 1.5 var(--f-texto);
-  font-size: max(var(--t-1), 13px);
+  font: 400 max(var(--t-1), 13px) / 1.5 var(--f-texto);
 }
 
 .card-projeto__acoes {
@@ -180,12 +218,14 @@
   align-items: center;
   gap: 8px 12px;
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: 6px;
 }
+
 .card-projeto__acoes .botao:focus-visible {
   outline: 2px solid var(--destaque-texto);
   outline-offset: 3px;
 }
+
 .card-projeto__privado {
   display: inline-flex;
   align-items: center;
@@ -194,31 +234,136 @@
   font: 500 var(--t0) / 1.2 var(--f-texto);
 }
 
-.card-projeto__oculto {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+/* Último item: convite para o GitHub. */
+.projetos__fim {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding: clamp(24px, 3vw, 40px);
+  border: 1px dashed var(--grafite-2);
 }
 
-/* card largo no desktop: imagem à esquerda, texto à direita */
-@media (min-width: 1100px) {
-  .card-projeto--largo .card-projeto__artigo {
-    display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+.projetos__fim-texto {
+  font-family: var(--f-display);
+  font-size: clamp(2.5rem, 4.4vw, 4.75rem);
+  font-weight: 850;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .projetos__fim {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: flex-end;
   }
-  .card-projeto--largo .card-projeto__imagem {
-    border-bottom: 0;
-    border-right: 1px solid var(--grafite-2);
-  }
-  .card-projeto--largo .card-projeto__corpo {
-    justify-content: center;
-    padding: clamp(28px, 3vw, 48px);
-  }
-  .card-projeto--largo .card-projeto__nome { font-size: clamp(2.6rem, 4.6vw, 4.6rem); }
-  .card-projeto--largo .card-projeto__acoes { margin-top: 12px; }
+}
+
+/* ---------- faixa horizontal (desktop com movimento) ---------- */
+
+.projetos--faixa {
+  padding: 0;
+}
+
+.projetos--faixa .projetos__palco {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  padding: calc(var(--canto-alt) + 4px) 0 28px;
+}
+
+.projetos--faixa .projetos__cabeca {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 24px clamp(24px, 4vw, 64px);
+  margin-bottom: clamp(20px, 3svh, 36px);
+  padding-inline: var(--gutter);
+}
+
+.projetos--faixa .projetos__titulo {
+  font-size: min(10vw, 17svh, 11rem);
+}
+
+.projetos--faixa .projetos__controles {
+  justify-items: end;
+  text-align: right;
+}
+
+.projetos--faixa .projetos-filtro {
+  justify-content: flex-end;
+}
+
+.projetos--faixa .projetos__janela {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: clip;
+}
+
+.projetos--faixa .projetos__trilho {
+  --card-w: clamp(340px, 33vw, 520px);
+  display: flex;
+  gap: clamp(16px, 1.6vw, 28px);
+  width: max-content;
+  height: 100%;
+  padding-inline: var(--gutter);
+}
+
+.projetos--faixa .card-projeto {
+  flex: none;
+  width: var(--card-w);
+  height: 100%;
+}
+
+.projetos--faixa .card-projeto--destaque {
+  width: calc(var(--card-w) * 1.3);
+}
+
+/* A imagem fica com a altura que sobra do texto (sempre visível, no mínimo 120px). */
+.projetos--faixa .card-projeto__imagem {
+  flex: 1 1 0;
+  min-height: 120px;
+  aspect-ratio: auto;
+  max-height: calc(var(--card-w) * 0.625);
+}
+
+.projetos--faixa .card-projeto--destaque .card-projeto__imagem {
+  max-height: calc(var(--card-w) * 1.3 * 0.625);
+}
+
+.projetos--faixa .card-projeto__corpo {
+  flex: 0 0 auto;
+}
+
+.projetos--faixa .projetos__fim {
+  flex: none;
+  width: calc(var(--card-w) * 0.9);
+  height: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.projetos--faixa .projetos__progresso {
+  display: block;
+  height: 3px;
+  margin: 20px var(--gutter) 0;
+  background: var(--grafite-2);
+}
+
+.projetos__barra {
+  display: block;
+  height: 100%;
+  background: var(--destaque);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.projetos--faixa .projetos-vazio {
+  margin-inline: var(--gutter);
 }
 
 /* ---------- lista vazia ---------- */
@@ -228,7 +373,7 @@
   border: 1px solid var(--grafite-2);
   background: var(--grafite);
 }
-.projetos-vazio[hidden] { display: none; }
+
 .projetos-vazio__texto {
   margin: 0 0 20px;
   max-width: var(--max-texto);
@@ -240,6 +385,11 @@
 @media (prefers-reduced-motion: reduce) {
   .card-projeto__imagem img,
   .card-projeto__artigo,
-  .projetos-filtro__botao { transition: none !important; }
-  .card-projeto:hover .card-projeto__imagem img { transform: none; }
+  .projetos-filtro__botao {
+    transition: none !important;
+  }
+
+  .card-projeto:hover .card-projeto__imagem img {
+    transform: none;
+  }
 }

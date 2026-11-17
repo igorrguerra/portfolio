@@ -18,6 +18,8 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/projetos.css" />
   <link rel="stylesheet" href="css/documentos.css" />
+  <!-- Rolagem suave (desligada com movimento reduzido e em telas de toque). Se não carregar, a rolagem nativa assume. -->
+  <script defer src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   <script defer src="data.js"></script>
   <script defer src="js/projetos.js"></script>
   <script defer src="js/documentos.js"></script>
@@ -26,26 +28,28 @@
 <body>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
-  <!-- Shell: main.js / base.css -->
+  <!-- Shell: main.js / base.css. Os cantos fixos ficam direto no body: nenhum ancestral com transform. -->
   <div class="loader" aria-hidden="true"></div>
   <div class="cursor" aria-hidden="true"></div>
-  <header class="topo" id="topo"></header>
-  <nav class="menu" id="menu" aria-label="Seções" hidden></nav>
+  <header class="cantos" id="topo">
+    <a class="cantos__nome" href="#hero">Igor Romero</a>
+    <a class="cantos__fale" href="#contato">Fale comigo</a>
+  </header>
 
-  <main id="conteudo">
+  <main id="conteudo" tabindex="-1">
     <section id="hero" class="hero" aria-labelledby="hero-nome"></section>
-    <div class="marquee" aria-hidden="true"></div>
+    <div class="faixa" aria-hidden="true"></div>
     <section id="sobre" class="secao" aria-labelledby="sobre-titulo"></section>
 
     <!-- projetos.js / projetos.css -->
-    <section id="projetos" class="secao" aria-labelledby="projetos-titulo"></section>
+    <section id="projetos" class="secao projetos" aria-labelledby="projetos-titulo"></section>
 
     <!-- documentos.js / documentos.css -->
     <section id="curriculo" class="secao" aria-labelledby="curriculo-titulo"></section>
     <section id="certificacoes" class="secao" aria-labelledby="certificacoes-titulo"></section>
 
     <!-- main.js / base.css -->
-    <section id="contato" class="secao" aria-labelledby="contato-titulo"></section>
+    <section id="contato" class="secao contato" aria-labelledby="contato-titulo"></section>
   </main>
 
   <footer class="rodape" id="rodape"></footer>

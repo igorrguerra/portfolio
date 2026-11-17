@@ -1,7 +1,10 @@
 /*
- * Shell do site: reset, utilitárias compartilhadas, topo, menu, loader,
- * hero, marquee, sobre, contato, rodapé, revelações e cursor.
- * Dono: css/base.css + js/main.js. Veja DESIGN.md.
+ * Shell do site (DESIGN.md, Revisão 3): reset, utilitárias compartilhadas,
+ * cantos fixos, loader, hero preso, faixa azul, sobre, contato, rodapé e cursor.
+ * Dono: css/base.css + js/main.js.
+ *
+ * Regra de ouro: nada aqui esconde conteúdo à espera de JS. Os estados de
+ * movimento só existem com html.movimento (posto pelo main.js) e só usam transform.
  */
 
 /* ---------- Reset ---------- */
@@ -23,12 +26,6 @@ html {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
 body {
   margin: 0;
   min-height: 100vh;
@@ -41,6 +38,16 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+}
+
+/* clip (e não hidden) para não criar contêiner de rolagem: o sticky continua valendo. */
+main,
+.rodape {
+  overflow-x: clip;
+}
+
+main:focus {
+  outline: none;
 }
 
 h1,
@@ -102,10 +109,6 @@ button {
   display: none !important;
 }
 
-html.sem-rolagem {
-  overflow: hidden;
-}
-
 .visualmente-oculto {
   position: absolute !important;
   width: 1px;
@@ -116,6 +119,28 @@ html.sem-rolagem {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ---------- Lenis (CSS recomendado da 1.1.13) ---------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 /* ---------- Pular para o conteúdo ---------- */
@@ -140,21 +165,25 @@ html.sem-rolagem {
 }
 
 /* ---------- Utilitárias compartilhadas ---------- */
-.secao {
-  padding-block: clamp(96px, 13vw, 208px);
-  padding-inline: var(--gutter);
-  scroll-margin-top: 0;
+:root {
+  --canto-alt: 72px; /* espaço que os cantos fixos ocupam no topo */
 }
 
+.secao {
+  padding-block: clamp(96px, 12vw, 192px);
+  padding-inline: var(--gutter);
+}
+
+/* Títulos de seção em tamanho de cartaz. Entram deslizando com a rolagem (main.js). */
 .titulo-secao {
   margin: 0 0 clamp(40px, 6vw, 96px);
   font-family: var(--f-display);
-  font-weight: 850;
-  font-size: var(--t4);
-  line-height: 0.85;
-  letter-spacing: -0.005em;
+  font-weight: 900;
+  font-size: min(15vw, 15rem);
+  line-height: 0.8;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .etiqueta-exemplo {
@@ -265,222 +294,73 @@ html.sem-rolagem {
   font-size: var(--t1);
 }
 
-/* ---------- Topo fixo com navegação ---------- */
-:root {
-  --topo-alt: 64px; /* o JS mede a altura real do topo */
-}
-
-main [id],
-#rodape {
-  scroll-margin-top: var(--topo-alt);
-}
-
-.topo {
+/* ---------- Cantos fixos ---------- */
+/* Sem barra e sem menu: nome no canto esquerdo, "Fale comigo" no direito.
+ * O <header> é filho direto do <body>; nenhum ancestral tem transform, filter
+ * ou backdrop-filter, então o position: fixed se prende sempre à janela. */
+.cantos {
   position: fixed;
-  inset: 0 0 auto;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 60;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  min-height: 64px;
-  padding: 0 var(--gutter);
-  border-bottom: 1px solid var(--grafite-2);
+  gap: 16px;
+  padding: 14px var(--gutter) 0;
+  pointer-events: none; /* só os dois links recebem clique */
 }
 
-/* O fundo com blur fica num pseudo-elemento: backdrop-filter no próprio
- * topo viraria bloco de contenção do painel fixo do celular. */
-.topo::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: rgb(10 10 10 / 0.86);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+.cantos > a {
+  pointer-events: auto;
 }
 
-.topo__nome {
-  flex: none;
-  padding-block: 10px;
+.cantos__nome {
+  margin-left: -10px;
+  padding: 9px 10px 7px;
+  background: var(--preto);
   font-family: var(--f-display);
-  font-size: var(--t1);
+  font-size: 1.35rem;
   font-weight: 800;
   line-height: 1;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
 }
 
-.topo__lista {
-  display: flex;
-  gap: clamp(8px, 2vw, 32px);
-  list-style: none;
+.cantos__nome:hover {
+  color: var(--destaque-texto);
 }
 
-.topo__link {
-  position: relative;
+.cantos__fale {
   display: inline-flex;
   align-items: center;
-  min-height: 64px;
-  padding-inline: 4px;
-  color: var(--fumaca);
-  font-size: var(--t0);
-  font-weight: 600;
+  min-height: 44px;
+  padding: 0 18px;
+  background: var(--destaque);
+  color: var(--destaque-tinta);
+  font-weight: 700;
+  line-height: 1;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.topo__link::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 -1px;
-  height: 3px;
-  background: var(--destaque);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s var(--ease-saida);
+.cantos__fale:hover {
+  background: var(--giz);
+  color: var(--preto);
 }
 
-.topo__link:hover,
-.topo__link[aria-current="true"] {
-  color: var(--giz);
-}
-
-.topo__link[aria-current="true"]::after {
-  transform: scaleX(1);
-}
-
-.topo__link:focus-visible {
-  outline-offset: -3px;
-}
-
-.topo__menu {
-  display: none;
-  align-items: center;
-  gap: 0.6em;
-  min-height: 44px;
-  padding: 0 0 0 12px;
-  border: 0;
-  background: none;
-  color: var(--giz);
-  font-weight: 600;
-}
-
-.topo__icone {
-  position: relative;
-  width: 18px;
-  height: 2px;
-  background: currentColor;
-  transition: background-color 0.2s ease;
-}
-
-.topo__icone::before,
-.topo__icone::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: currentColor;
-  transition: transform 0.25s var(--ease-saida);
-}
-
-.topo__icone::before {
-  transform: translateY(-6px);
-}
-
-.topo__icone::after {
-  transform: translateY(6px);
-}
-
-.topo__menu[aria-expanded="true"] .topo__icone {
-  background: transparent;
-}
-
-.topo__menu[aria-expanded="true"] .topo__icone::before {
-  transform: rotate(45deg);
-}
-
-.topo__menu[aria-expanded="true"] .topo__icone::after {
-  transform: rotate(-45deg);
-}
-
-/* Celular e tablet estreito: botão Menu e painel simples. */
-@media (max-width: 899px) {
-  .topo__menu {
-    display: inline-flex;
-  }
-
-  .topo__nav {
-    position: fixed;
-    inset: var(--topo-alt) 0 0;
-    display: none;
-    overflow-y: auto;
-    padding: 8px var(--gutter) 32px;
-    background: var(--preto);
-  }
-
-  .topo__nav.is-aberto {
-    display: block;
-  }
-
-  .topo__lista {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .topo__lista li {
-    border-bottom: 1px solid var(--grafite-2);
-  }
-
-  .topo__link {
-    display: flex;
-    width: 100%;
-    min-height: 0;
-    padding: 14px 0 10px;
-    color: var(--giz);
-    font-family: var(--f-display);
-    font-size: clamp(2.25rem, 11vw, 3.5rem);
-    font-weight: 800;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
-  .topo__link::after {
-    inset: auto auto 10px 0;
-    width: 0.6em;
-    height: 4px;
-    transform: none;
-    opacity: 0;
-  }
-
-  .topo__link[aria-current="true"]::after {
-    opacity: 1;
-  }
-
-  .topo__link[aria-current="true"] {
-    padding-bottom: 22px;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .topo__nav.is-aberto {
-    animation: painel 0.22s var(--ease-saida);
-  }
-}
-
-@keyframes painel {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
+.cantos a:focus-visible {
+  outline: 3px solid var(--giz);
+  outline-offset: 3px;
 }
 
 /* ---------- Loader ---------- */
 /* Sem JS o loader nunca aparece. Com JS ele cobre a tela e tem um
- * desligamento só de CSS em 2.4s para o caso de o script travar. */
+ * desligamento só de CSS em 2s para o caso de o script travar. */
 .loader {
   display: none;
 }
@@ -492,7 +372,8 @@ main [id],
   display: block;
   background: var(--preto);
   clip-path: inset(0 0 0 0);
-  animation: loader-seguranca 0s linear 2.4s forwards;
+  pointer-events: none;
+  animation: loader-seguranca 0s linear 2s forwards;
 }
 
 @keyframes loader-seguranca {
@@ -501,26 +382,19 @@ main [id],
   }
 }
 
-.loader__nome {
+.loader .loader__nome {
   position: absolute;
   top: 0;
   left: 0;
   margin: 0;
   color: var(--destaque-texto);
-  font-family: var(--f-display);
   font-weight: 100;
-  line-height: 0.82;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.loader__nome span {
-  display: block;
+  opacity: 1;
 }
 
 .js .loader.is-saindo {
   clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.42s var(--ease-batida);
+  transition: clip-path 0.4s var(--ease-batida);
 }
 
 .js .loader.is-fim {
@@ -534,47 +408,80 @@ main [id],
 }
 
 /* ---------- Hero ---------- */
+/* Sem movimento (ou sem JS): uma tela normal com nome, resumo e informações.
+ * Com html.movimento: o hero tem 240svh e o palco fica preso (sticky) enquanto
+ * o main.js anda o progresso. */
 .hero {
+  position: relative;
+}
+
+.hero__palco {
   position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100svh;
-  padding: min(clamp(96px, 9vw, 128px), max(88px, 13svh)) var(--gutter) clamp(20px, 3svh, 40px);
+  padding: calc(var(--canto-alt) + clamp(8px, 2svh, 24px)) var(--gutter) clamp(20px, 3svh, 36px);
 }
 
 .hero__nome {
   margin: 0;
   font-family: var(--f-display);
-  font-size: var(--nome-tam, var(--t-mega));
+  font-size: var(--nome-tam, min(var(--t-mega), 30vw));
   font-weight: 900;
-  line-height: 0.82;
-  letter-spacing: 0;
+  line-height: 0.8;
+  letter-spacing: -0.005em;
   text-transform: uppercase;
-  overflow-wrap: normal;
+  white-space: nowrap;
+  transform-origin: 50% 40%;
+}
+
+.hero__nome {
+  display: flex;
+  flex-direction: column;
 }
 
 .hero__linha {
   display: block;
   width: max-content;
-  white-space: nowrap;
 }
 
-/* Sem JS para medir, o clamp é calibrado para "GUERRA" caber em 375px. */
-.hero__nome:not(.is-medido) {
-  font-size: min(var(--t-mega), 30vw);
+/* A segunda palavra encosta na margem direita: o nome atravessa a tela. */
+.hero__linha + .hero__linha {
+  align-self: flex-end;
 }
 
-.hero__info {
+/* Tela larga: IGOR ROMERO numa linha só, de borda a borda. */
+.hero__nome--uma {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.hero__nome--uma .hero__linha + .hero__linha {
+  align-self: auto;
+}
+
+.hero__resumo {
+  max-width: 17em;
+  margin-top: clamp(32px, 6svh, 64px);
+  font-family: var(--f-display);
+  font-size: clamp(2.25rem, 5.6vw, 6.25rem);
+  font-weight: 800;
+  line-height: 0.92;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.hero__base {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: var(--gutter);
-  row-gap: 20px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 20px var(--gutter);
   margin-top: auto;
-  padding-top: clamp(20px, 4svh, 56px);
+  padding-top: clamp(20px, 4svh, 48px);
 }
 
 .hero__cargo {
-  grid-column: 1 / span 5;
+  max-width: 30ch;
   font-size: var(--t1);
   font-weight: 650;
   line-height: 1.2;
@@ -588,18 +495,22 @@ main [id],
   font-weight: 400;
 }
 
-.hero__texto {
-  grid-column: 7 / -1;
-  grid-row: 1 / span 2;
+.hero__lado {
   display: grid;
-  gap: 18px;
-  align-content: start;
+  justify-items: end;
+  gap: 10px;
+  text-align: right;
 }
 
-.hero__resumo {
-  max-width: 34ch;
-  font-size: var(--t1);
-  line-height: 1.35;
+.hero__rolagem {
+  display: inline-block;
+  padding-block: 8px;
+  color: var(--fumaca);
+  text-underline-offset: 0.25em;
+}
+
+.hero__rolagem:hover {
+  color: var(--giz);
 }
 
 .status {
@@ -619,85 +530,46 @@ main [id],
   background: var(--destaque);
 }
 
-.hero__rolagem {
-  grid-column: 1 / span 5;
-  grid-row: 2;
-  display: inline-flex;
-  align-items: center;
-  align-self: end;
-  justify-self: start;
-  gap: 16px;
-  padding-block: 10px;
-  color: var(--fumaca);
-  text-decoration: none;
+/* Movimento: palco preso, resumo centralizado (o JS o empurra para baixo e o traz). */
+.movimento .hero {
+  height: 240svh;
 }
 
-.hero__rolagem:hover {
-  color: var(--giz);
-}
-
-.hero__linha-rolagem {
-  position: relative;
-  width: 72px;
-  height: 2px;
+.movimento .hero__palco {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 0;
   overflow: hidden;
-  background: var(--grafite-2);
 }
 
-.hero__linha-rolagem::after {
-  content: "";
+.movimento .hero__resumo {
   position: absolute;
-  inset: 0;
-  background: var(--giz);
-  transform: scaleX(0);
-  transform-origin: left;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero__linha-rolagem::after {
-    animation: rolagem 2.2s var(--ease-batida) infinite;
-  }
-
-  .hero__nome.is-morph {
-    will-change: transform;
-  }
-}
-
-@keyframes rolagem {
-  0% {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-  45% {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-  55% {
-    transform: scaleX(1);
-    transform-origin: right;
-  }
-  100% {
-    transform: scaleX(0);
-    transform-origin: right;
-  }
+  top: 50%;
+  left: var(--gutter);
+  right: var(--gutter);
+  margin: 0;
+  translate: 0 -50%;
 }
 
 @media (max-width: 767px) {
-  .hero__cargo,
-  .hero__texto,
-  .hero__rolagem {
-    grid-column: 1 / -1;
-    grid-row: auto;
+  .hero__base {
+    grid-template-columns: 1fr;
   }
 
-  .hero__info {
-    row-gap: 16px;
+  .hero__lado {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .movimento .hero {
+    height: 200svh;
   }
 }
 
 /* ---------- Títulos display: sem hifenização, quebra só em espaços ---------- */
 /* O JS envolve palavras com hífen (ex.: FRONT-END) em .sem-quebra. */
-:where(h1, h2, h3, h4, .titulo-secao, .hero__nome, .rodape__gigante, .menu__link, [class*="__nome"]) {
+:where(h1, h2, h3, h4, .titulo-secao, .hero__nome, .rodape__gigante, .sobre__frase, [class*="__nome"]) {
   hyphens: none;
   -webkit-hyphens: none;
 }
@@ -706,38 +578,49 @@ main [id],
   white-space: nowrap;
 }
 
-/* ---------- Marquee ---------- */
-.marquee {
-  overflow: hidden;
+/* ---------- Faixa azul ---------- */
+/* Fita de evento atravessando a tela, levemente inclinada. Anda só quando a
+ * página rola (main.js); parada, fica parada. */
+.faixa {
+  position: relative;
+  z-index: 2;
+  overflow: clip;
+  padding-block: clamp(28px, 5vw, 72px);
+}
+
+.faixa__fita {
+  width: 130vw;
+  margin-left: -15vw;
   background: var(--destaque);
   color: var(--destaque-tinta);
   font-family: var(--f-display);
-  font-size: clamp(2.25rem, 6vw, 5.5rem);
-  font-weight: 850;
+  font-size: clamp(2.5rem, 7vw, 7rem);
+  font-weight: 900;
   line-height: 1;
   text-transform: uppercase;
+  transform: rotate(-3deg);
 }
 
-.marquee__trilho {
+.faixa__trilho {
   display: flex;
   width: max-content;
-  padding-block: 0.22em 0.18em;
+  padding-block: 0.16em 0.1em;
 }
 
-.marquee__grupo {
+.faixa__grupo {
   display: flex;
   flex: none;
   align-items: center;
   list-style: none;
 }
 
-.marquee__item {
+.faixa__item {
   display: flex;
   align-items: center;
   white-space: nowrap;
 }
 
-.marquee__item::after {
+.faixa__item::after {
   content: "";
   display: block;
   width: 0.14em;
@@ -747,52 +630,63 @@ main [id],
   transform: skewX(-18deg);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .marquee__trilho {
-    animation: marquee var(--marquee-dur, 40s) linear infinite;
-  }
-
-  .marquee:hover .marquee__trilho {
-    animation-play-state: paused;
-  }
-}
-
-@keyframes marquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .marquee {
+  .faixa__fita {
+    width: auto;
+    margin-left: 0;
     padding-inline: var(--gutter);
+    transform: none;
   }
 
-  .marquee__trilho {
+  .faixa__trilho {
     width: auto;
   }
 
-  .marquee__grupo {
+  .faixa__grupo {
     flex: 1 1 auto;
     flex-wrap: wrap;
     row-gap: 0.1em;
   }
 
-  .marquee__grupo + .marquee__grupo {
+  .faixa__grupo + .faixa__grupo {
     display: none;
   }
 }
 
 /* ---------- Sobre ---------- */
+.sobre__frase {
+  max-width: 19em;
+  margin-bottom: clamp(64px, 9vw, 144px);
+  font-family: var(--f-display);
+  font-size: clamp(2.25rem, 5.8vw, 6.5rem);
+  font-weight: 800;
+  line-height: 0.94;
+  text-transform: uppercase;
+}
+
+/* Palavras apagadas continuam legíveis (nunca opacity 0); acendem com a rolagem. */
+.sobre__frase.is-dividida .palavra {
+  color: #4d505a;
+  transition: color 0.3s ease;
+}
+
+.sobre__frase.is-dividida .palavra.is-acesa {
+  color: var(--giz);
+}
+
+.palavra {
+  white-space: nowrap;
+}
+
 .sobre__grade {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--gutter);
-  row-gap: 48px;
+  row-gap: 56px;
 }
 
 .sobre__texto {
-  grid-column: 1 / span 7;
+  grid-column: 1 / span 5;
   display: grid;
   align-content: start;
   gap: 1.1em;
@@ -804,9 +698,12 @@ main [id],
   max-width: var(--max-texto);
 }
 
-.sobre__habilidades {
-  grid-column: 9 / -1;
-  align-self: start;
+.sobre__listas {
+  grid-column: 7 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px var(--gutter);
+  align-content: start;
 }
 
 .sobre__subtitulo {
@@ -816,56 +713,59 @@ main [id],
   font-weight: 500;
 }
 
-.sobre__lista {
-  list-style: none;
-  columns: 2;
-  column-gap: 24px;
-}
-
-.sobre__habilidades .sobre__subtitulo + .sobre__lista + .sobre__subtitulo {
-  margin-top: 40px;
-}
-
+.sobre__lista,
 .sobre__idiomas {
   list-style: none;
 }
 
+.sobre__lista li,
 .sobre__idiomas li {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 2px 16px;
-  padding: 6px 0;
+  padding: 7px 0;
   border-top: 1px solid var(--grafite-2);
+}
+
+.sobre__idiomas li {
+  display: grid;
+  gap: 2px;
 }
 
 .sobre__nivel {
   color: var(--fumaca);
 }
 
-.sobre__lista li {
-  padding: 6px 0;
-  border-top: 1px solid var(--grafite-2);
-  break-inside: avoid;
-}
-
 @media (max-width: 899px) {
   .sobre__texto,
-  .sobre__habilidades {
+  .sobre__listas {
     grid-column: 1 / -1;
   }
 }
 
+@media (max-width: 479px) {
+  .sobre__listas {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Contato ---------- */
+.contato {
+  padding-bottom: clamp(64px, 8vw, 128px);
+}
+
 .contato__status {
   margin-bottom: clamp(20px, 3vw, 32px);
 }
 
+.contato__linha-email {
+  margin: 0;
+}
+
+/* E-mail encaixado de borda a borda pelo main.js (--email-tam). */
 .contato__email {
   display: inline-block;
   max-width: 100%;
+  color: var(--giz);
   font-family: var(--f-display);
-  font-size: clamp(1.75rem, 9.4vw, 10rem);
+  font-size: var(--email-tam, clamp(1.75rem, 9vw, 10rem));
   font-weight: 800;
   line-height: 0.9;
   text-decoration: none;
@@ -873,60 +773,40 @@ main [id],
   background-image: linear-gradient(var(--destaque), var(--destaque));
   background-repeat: no-repeat;
   background-position: 0 100%;
-  background-size: 0% 0.08em;
+  background-size: 0% 0.07em;
   padding-bottom: 0.08em;
-  transition: background-size 0.4s var(--ease-saida);
+  transition: background-size 0.4s var(--ease-saida), color 0.2s ease;
+}
+
+.contato__email-texto {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .contato__email:hover,
 .contato__email:focus-visible {
-  background-size: 100% 0.08em;
+  color: var(--destaque-texto);
+  background-size: 100% 0.07em;
 }
 
 .contato__acoes {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px 24px;
-  margin-top: clamp(28px, 4vw, 48px);
+  gap: 12px;
+  margin-top: clamp(28px, 4vw, 56px);
 }
 
 .contato__aviso {
+  margin-top: 12px;
   color: var(--fumaca);
   min-height: 1.55em;
 }
 
-.contato__redes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px clamp(24px, 4vw, 56px);
-  margin-top: clamp(48px, 7vw, 96px);
-  padding-top: 24px;
-  border-top: 1px solid var(--grafite-2);
-  list-style: none;
-}
-
-.contato__rede {
-  display: inline-block;
-  padding-block: 6px;
-  font-size: var(--t2);
-  font-weight: 600;
-  font-stretch: 90%;
-  text-decoration: underline;
-  text-decoration-color: var(--grafite-2);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.2em;
-  transition: text-decoration-color 0.2s ease;
-}
-
-.contato__rede:hover {
-  text-decoration-color: var(--destaque-texto);
-}
-
 /* ---------- Rodapé ---------- */
 .rodape {
-  padding: clamp(48px, 6vw, 80px) var(--gutter) 24px;
-  overflow: hidden;
+  padding: clamp(40px, 5vw, 72px) var(--gutter) 24px;
+  border-top: 1px solid var(--grafite-2);
 }
 
 .rodape__gigante {
@@ -961,32 +841,8 @@ main [id],
   color: var(--giz);
 }
 
-/* ---------- Revelações ---------- */
-/* Só esconde quando o JS está ativo e o movimento é permitido.
- * O estado oculto usa opacity (o IntersectionObserver do Chrome ignora alvos
- * recortados por clip-path); a máscara de baixo para cima roda ao ganhar .is-in. */
-@media (prefers-reduced-motion: no-preference) {
-  .js [data-reveal]:not(.is-in) {
-    opacity: 0;
-  }
-
-  .js [data-reveal].is-in {
-    animation: revelar 0.75s var(--ease-saida) backwards; /* sem clip depois */
-  }
-}
-
-@keyframes revelar {
-  from {
-    clip-path: inset(100% -0.1em -0.2em -0.1em);
-    transform: translateY(0.35em);
-  }
-  to {
-    clip-path: inset(-0.25em -0.1em -0.2em -0.1em);
-    transform: none;
-  }
-}
-
 /* ---------- Cursor customizado ---------- */
+/* Só com mouse e sem movimento reduzido. Nunca recebe clique. */
 .cursor {
   display: none;
 }

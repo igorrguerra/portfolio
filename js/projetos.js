@@ -1,6 +1,11 @@
 /*
- * Seção de projetos: filtro por tecnologia + grade de cards (DESIGN.md, Revisão 2).
- * Conteúdo vem de window.PORTFOLIO.projetos.
+ * Seção de projetos (DESIGN.md, Revisão 3).
+ * Desktop (>= 1024px) com movimento: a seção prende (sticky) e a faixa de cards
+ * anda na horizontal conforme a rolagem vertical. A altura da seção sai da
+ * largura da faixa e é recalculada no resize e no filtro.
+ * Abaixo de 1024px ou com movimento reduzido: lista vertical normal de cards.
+ * Conteúdo vem de window.PORTFOLIO.projetos. O quadro de animação é o laço único
+ * do main.js (window.efeitosRolagem).
  */
 (function () {
   "use strict";
@@ -9,7 +14,10 @@
   const dados = window.PORTFOLIO && window.PORTFOLIO.projetos;
   if (!secao || !Array.isArray(dados)) return;
 
+  const github = window.PORTFOLIO.contato && window.PORTFOLIO.contato.github;
   const TODOS = "__todos__";
+  const VISIVEIS_NO_FILTRO = 6;
+  const mqFaixa = window.matchMedia("(min-width: 1024px) and (prefers-reduced-motion: no-preference)");
 
   // Destaques primeiro, mantendo a ordem do data.js dentro de cada grupo.
   const projetos = dados
@@ -23,6 +31,8 @@
   const tecnologias = [...contagem.keys()].sort(
     (a, b) => contagem.get(b) - contagem.get(a) || a.localeCompare(b, "pt-BR")
   );
+  const principais = tecnologias.slice(0, VISIVEIS_NO_FILTRO);
+  const outras = tecnologias.slice(VISIVEIS_NO_FILTRO);
 
   function el(tag, attrs, ...filhos) {
     const n = document.createElement(tag);
@@ -47,10 +57,11 @@
 
   /* ---------- estrutura ---------- */
 
-  const titulo = el("h2", { id: "projetos-titulo", class: "titulo-secao", "data-reveal": true, text: "Projetos" });
+  const titulo = el("h2", { id: "projetos-titulo", class: "titulo-secao projetos__titulo", text: "Projetos" });
 
+  // Filtro compacto: Todos + as 6 tecnologias mais comuns + um seletor "Mais".
   const filtro = el("div", { class: "projetos-filtro", role: "group", "aria-label": "Filtrar projetos por tecnologia" });
-  const botoes = [TODOS, ...tecnologias].map((t) =>
+  const botoes = [TODOS, ...principais].map((t) =>
     el("button", {
       type: "button",
       class: "projetos-filtro__botao",
@@ -61,18 +72,45 @@
   );
   filtro.append(...botoes);
 
+  let seletor = null;
+  if (outras.length) {
+    seletor = el(
+      "select",
+      { class: "projetos-filtro__mais", "aria-label": "Mais tecnologias" },
+      el("option", { value: "", text: "Mais" }),
+      outras.map((t) => el("option", { value: t, text: t }))
+    );
+    filtro.append(seletor);
+  }
+
   const status = el("p", { class: "projetos-status", "aria-live": "polite", "aria-atomic": "true" });
 
-  const grade = el("ul", { class: "projetos-grade", role: "list" });
+  const trilho = el("ul", { class: "projetos__trilho", role: "list" });
   const cards = projetos.map(montarCard);
-  grade.append(...cards.map((c) => c.li));
+  trilho.append(...cards.map((c) => c.li));
+
+  let fim = null;
+  if (github) {
+    fim = el(
+      "li",
+      { class: "projetos__fim" },
+      el("p", { class: "projetos__fim-texto", text: "Tem mais código no GitHub" }),
+      el("a", { class: "botao botao--cheio", href: github, target: "_blank", rel: "noopener", text: "Abrir GitHub" })
+    );
+    trilho.append(fim);
+  }
+
+  const janela = el("div", { class: "projetos__janela" }, trilho);
+  const barra = el("span", { class: "projetos__barra" });
+  const progresso = el("div", { class: "projetos__progresso", "aria-hidden": "true" }, barra);
 
   const vazioTexto = el("p", { class: "projetos-vazio__texto" });
   const vazioBotao = el("button", { type: "button", class: "botao botao--contorno", text: "Ver todos" });
   const vazio = el("div", { class: "projetos-vazio", hidden: true }, vazioTexto, vazioBotao);
 
-  const topo = el("div", { class: "projetos-topo" }, filtro, status);
-  secao.replaceChildren(titulo, topo, grade, vazio);
+  const cabeca = el("div", { class: "projetos__cabeca" }, titulo, el("div", { class: "projetos__controles" }, filtro, status));
+  const palco = el("div", { class: "projetos__palco" }, cabeca, janela, vazio, progresso);
+  secao.replaceChildren(palco);
 
   /* ---------- card ---------- */
 
@@ -92,7 +130,7 @@
         ? el(
             "figure",
             { class: "card-projeto__imagem" },
-            el("img", { src: p.imagem.src, alt: p.imagem.alt || "", width: "1600", height: "1000", loading: "lazy", decoding: "async" })
+            el("img", { src: p.imagem.src, alt: p.imagem.alt || "", width: "1600", height: "1000", decoding: "async" })
           )
         : el("div", { class: "card-projeto__imagem card-projeto__imagem--vazia", "aria-hidden": "true" });
 
@@ -110,7 +148,7 @@
     const nome = el("h3", { class: "card-projeto__nome", id: nomeId }, p.nome);
     const desc = p.descricao ? el("p", { class: "card-projeto__desc" }, p.descricao) : null;
     const tecs = (p.tecnologias || []).length
-      ? el("p", { class: "card-projeto__tec" }, el("span", { class: "card-projeto__oculto", text: "Tecnologias: " }), p.tecnologias.join(", "))
+      ? el("p", { class: "card-projeto__tec" }, el("span", { class: "visualmente-oculto", text: "Tecnologias: " }), p.tecnologias.join(", "))
       : null;
     const pendente = p.pendente ? el("p", { class: "card-projeto__pendente" }, p.pendente) : null;
 
@@ -134,50 +172,94 @@
 
     const li = el(
       "li",
-      { class: "card-projeto" + (p.destaque ? " card-projeto--destaque" : ""), "data-reveal": true },
+      { class: "card-projeto" + (p.destaque ? " card-projeto--destaque" : "") },
       el("article", { class: "card-projeto__artigo", "aria-labelledby": nomeId }, figura, corpo)
     );
     return { li, p };
+  }
+
+  /* ---------- faixa horizontal ---------- */
+
+  let modoFaixa = false;
+  let curso = 0; // quanto a faixa anda na horizontal (px) = quanto a seção rola a mais
+  let ultimoX = null;
+
+  function aplicarModo() {
+    modoFaixa = mqFaixa.matches;
+    secao.classList.toggle("projetos--faixa", modoFaixa);
+    if (!modoFaixa) {
+      secao.style.height = "";
+      trilho.style.transform = "";
+      barra.style.transform = "";
+      curso = 0;
+    }
+  }
+
+  function medir() {
+    if (modoFaixa !== mqFaixa.matches) aplicarModo();
+    ultimoX = null;
+    if (!modoFaixa) return;
+    curso = Math.max(0, Math.ceil(trilho.scrollWidth - janela.clientWidth));
+    const alvo = Math.ceil(palco.offsetHeight + curso) + "px";
+    if (secao.style.height !== alvo) secao.style.height = alvo;
+  }
+
+  function quadro() {
+    if (!modoFaixa) return;
+    const topo = secao.getBoundingClientRect().top;
+    const p = curso ? Math.min(1, Math.max(0, -topo / curso)) : 0;
+    const x = Math.round(p * curso);
+    if (x === ultimoX) return;
+    ultimoX = x;
+    trilho.style.transform = `translate3d(${-x}px,0,0)`;
+    barra.style.transform = `scaleX(${p.toFixed(4)})`;
+  }
+
+  (window.efeitosRolagem = window.efeitosRolagem || []).push({ medir, quadro });
+
+  // Teclado: ao focar um card fora da janela, rola a página até ele aparecer.
+  trilho.addEventListener("focusin", (ev) => {
+    if (!modoFaixa || !curso) return;
+    const item = ev.target.closest(".card-projeto, .projetos__fim");
+    if (!item) return;
+    const inicio = secao.getBoundingClientRect().top + window.scrollY;
+    const alvoX = Math.min(curso, Math.max(0, item.offsetLeft - janela.clientWidth * 0.1));
+    rolar(inicio + alvoX, true);
+  });
+
+  function rolar(y, imediato) {
+    if (window.rolarPara) window.rolarPara(y, { imediato });
+    else window.scrollTo(0, y);
   }
 
   /* ---------- filtro ---------- */
 
   function aplicarFiltro(tec) {
     botoes.forEach((b) => b.setAttribute("aria-pressed", b.dataset.tec === tec ? "true" : "false"));
+    if (seletor) {
+      const daLista = outras.includes(tec);
+      seletor.value = daLista ? tec : "";
+      seletor.classList.toggle("is-ativo", daLista);
+    }
 
     let visiveis = 0;
-    const destaquesVisiveis = [];
     cards.forEach(({ li, p }) => {
       const mostra = tec === TODOS || (p.tecnologias || []).includes(tec);
-      const estavaOculto = li.hidden;
       li.hidden = !mostra;
-      li.classList.remove("card-projeto--largo");
-      if (mostra) {
-        visiveis++;
-        if (p.destaque) destaquesVisiveis.push(li);
-        // card que volta a aparecer não pode ficar preso no estado "antes da revelação"
-        if (estavaOculto) li.classList.add("is-in");
-      }
+      if (mostra) visiveis++;
     });
-    // Com número ímpar de destaques, o primeiro ocupa a largura toda e os outros ficam em pares.
-    if (destaquesVisiveis.length % 2 === 1) destaquesVisiveis[0].classList.add("card-projeto--largo");
-
-    // Sem card sobrando sozinho na última fileira dos comuns.
-    const comuns = cards.filter(({ li, p }) => !li.hidden && !p.destaque).map(({ li }) => li);
-    comuns.forEach((li) => li.classList.remove("card-projeto--metade", "card-projeto--fim-tablet"));
-    const resto = comuns.length % 3; // desktop: 3 por fileira
-    const metades = resto === 1 && comuns.length >= 4 ? 4 : resto === 2 ? 2 : resto === 1 ? 1 : 0;
-    comuns.slice(comuns.length - metades).forEach((li) => li.classList.add("card-projeto--metade"));
-    if (comuns.length % 2 === 1) comuns[comuns.length - 1].classList.add("card-projeto--fim-tablet"); // tablet: 2 por fileira
 
     status.textContent = tec === TODOS ? plural(visiveis) : `${plural(visiveis)} com ${tec}`;
 
     const semResultado = visiveis === 0;
-    grade.hidden = semResultado;
+    janela.hidden = semResultado;
     vazio.hidden = !semResultado;
     if (semResultado) vazioTexto.textContent = `Nenhum projeto com ${tec}. Escolha outra tecnologia ou veja todos.`;
 
-    window.observarRevelacoes?.(secao);
+    // A faixa mudou de largura: remede e, se a seção já estava rolada, volta ao primeiro card.
+    medir();
+    if (modoFaixa && secao.getBoundingClientRect().top < 0) rolar(secao.getBoundingClientRect().top + window.scrollY, true);
+    if (window.pedirQuadro) window.pedirQuadro();
   }
 
   filtro.addEventListener("click", (ev) => {
@@ -185,10 +267,17 @@
     if (b) aplicarFiltro(b.dataset.tec);
   });
 
+  if (seletor) {
+    seletor.addEventListener("change", () => aplicarFiltro(seletor.value || TODOS));
+  }
+
   vazioBotao.addEventListener("click", () => {
     aplicarFiltro(TODOS);
     botoes[0].focus();
   });
 
+  if (mqFaixa.addEventListener) mqFaixa.addEventListener("change", () => window.medirEfeitos && window.medirEfeitos());
+
+  aplicarModo();
   aplicarFiltro(TODOS);
 })();

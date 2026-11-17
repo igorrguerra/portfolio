@@ -113,3 +113,31 @@ A variável antiga `--volt` foi renomeada para `--destaque` em todos os arquivos
 - Qualquer item com `pendente: "texto"` mostra uma etiqueta "A confirmar" com o texto em `title` e numa linha pequena visível, para o Igor saber o que falta preencher.
 - `contato.linkedin` pode ser null (esconder).
 - `curriculo.arquivos` pode ter 1 item só (bloco único, sem buraco na grade).
+
+---
+
+## Revisão 3 (vale por cima de tudo acima)
+
+O Igor pediu para tirar a navegação ("fica toda bugada") e algo com mais cara de evento. Os bugs eram de rolagem: topo fixo aparecendo no meio da tela, faixas pretas no celular (revelações com `opacity: 0` + `clip-path`) e coisas animando sem parar.
+
+**Shell sem navegação.** Fixo só nos cantos: "IGOR ROMERO" à esquerda (volta ao topo) e o botão azul "Fale comigo" à direita (vai a `#contato`). Sem barra, sem menu, sem "seção atual". O `<header class="cantos">` é filho direto do `<body>` e nenhum ancestral tem `transform`, `filter` ou `backdrop-filter`. "Pular para o conteúdo" continua.
+
+**Rolagem.** Lenis 1.1.13 (unpkg, CSS recomendado embutido no `base.css`), só com mouse/trackpad e sem movimento reduzido; em toque fica a rolagem nativa. Âncoras passam por `window.rolarPara()` (Lenis ou `scrollTo`). O visualizador recebe `data-lenis-prevent` e o Lenis para enquanto ele está aberto.
+
+**Um laço de quadro só.** `main.js` roda um `requestAnimationFrame` por evento de rolagem/resize; módulos se registram em `window.efeitosRolagem` com `{ medir(), quadro(estado) }`. Parada a página, nada se move (a faixa azul também anda com a rolagem, não com o relógio). Tudo que se move usa `transform`; o CSS nunca esconde conteúdo à espera de JS, e os estados de movimento só existem com `html.movimento`.
+
+**Sequência.**
+1. Hero preso (240svh, 200svh no celular): IGOR / ROMERO de borda a borda, ROMERO encostado à direita (uma linha só em tela muito baixa e larga). Ao rolar, as duas palavras se afastam, o nome encolhe e sai, e o resumo sobe até o centro.
+2. Faixa azul inclinada (-3°) com as habilidades.
+3. Sobre: título gigante, `sobre.texto[0]` como frase grande que acende palavra por palavra (as apagadas ficam cinza, nunca invisíveis), depois o resto do texto, habilidades e idiomas.
+4. Projetos: no desktop (≥ 1024px, sem movimento reduzido) o palco prende e a faixa de cards anda na horizontal; a altura da seção = altura do palco + (largura da faixa − largura da janela), recalculada no resize e no filtro. Barra azul de progresso embaixo. Foco por teclado num card fora da tela rola até ele. Abaixo disso, lista vertical de cards (1/2/3 colunas). Filtro: Todos + 6 tecnologias mais comuns + seletor "Mais". O último item convida para o GitHub.
+5. Currículo e certificações (lógica intacta, títulos gigantes).
+6. Contato: e-mail encaixado de borda a borda, Copiar e-mail, GitHub, WhatsApp (LinkedIn só se existir). Rodapé com o nome de borda a borda em azul.
+
+**Títulos de seção** em tamanho de cartaz (`min(15vw, 15rem)`, sem quebra) entram deslizando da direita ligados à rolagem.
+
+**Movimento reduzido:** sem Lenis, sem hero preso, sem faixa horizontal (vira lista), faixa azul reta e estática, frase toda acesa, sem loader e sem cursor.
+
+**Cursor:** a posição vai na propriedade `translate` (a `scale` do CSS multiplicava o `transform` e deixava o ponto longe do mouse).
+
+**Prova de rolagem:** Playwright com `mouse.wheel` em passos de 600px (o Chromium do Playwright dobra o delta, então o script pede 300), 1440x900 e 390x844 com toque, com e sem movimento reduzido; screenshot por passo, folha de miniaturas e checagens de topo em 0, `scrollWidth`, console e 404.
