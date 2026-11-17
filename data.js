@@ -23,6 +23,7 @@ window.PORTFOLIO = {
   },
 
   sobre: {
+    exemplo: true,            // [EXEMPLO] apague quando reescrever o texto
     // Parágrafos curtos. [EXEMPLO] Reescreva com a sua voz.
     texto: [
       "Gosto de pegar uma ideia confusa e transformar em algo que roda: um SaaS que um dono de lava jato usa com a mão molhada, um site de estúdio de cinema que carrega rápido mesmo cheio de vídeo, um jogo que ensina sem parecer aula.",
@@ -133,6 +134,7 @@ window.PORTFOLIO = {
   ],
 
   contato: {
+    exemplo: true,            // [EXEMPLO] apague quando colocar seus contatos reais
     email: "seuemail@exemplo.com",                   // [EXEMPLO]
     linkedin: "https://www.linkedin.com/in/seu-perfil", // [EXEMPLO]
     github: "https://github.com/igorrguerra",

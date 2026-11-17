@@ -1,0 +1,288 @@
+/* Seção de projetos. Dono: js/projetos.js. Veja DESIGN.md (linhas, não cards). */
+
+/* ---------- filtro ---------- */
+
+.projetos-topo {
+  display: grid;
+  gap: 12px;
+  margin-block: clamp(24px, 4vw, 48px) clamp(24px, 3vw, 40px);
+}
+
+.projetos-filtro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.projetos-filtro__botao {
+  flex: none;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--grafite-2);
+  border-radius: 0;
+  background: transparent;
+  color: var(--giz);
+  font: 500 var(--t0) / 1 var(--f-texto);
+  font-stretch: 90%;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.projetos-filtro__botao:hover { border-color: var(--giz); }
+.projetos-filtro__botao[aria-pressed="true"] {
+  background: var(--giz);
+  border-color: var(--giz);
+  color: var(--preto);
+}
+.projetos-filtro__botao:focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 3px;
+}
+
+.projetos-status {
+  margin: 0;
+  color: var(--fumaca);
+  font: 400 var(--t0) / 1.55 var(--f-texto);
+}
+
+@media (min-width: 900px) {
+  .projetos-topo {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 24px;
+  }
+}
+
+/* ---------- lista ---------- */
+
+.projetos-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--grafite-2);
+}
+
+.projeto {
+  position: relative;
+  isolation: isolate;
+  border-top: 1px solid var(--grafite-2);
+  color: var(--giz);
+}
+.projeto[hidden] { display: none; }
+
+/* o volt que sobe de baixo para cima */
+.projeto__fundo {
+  position: absolute;
+  inset: -1px 0 0;
+  z-index: -1;
+  background: var(--volt);
+  transform: scaleY(0);
+  transform-origin: 50% 100%;
+  transition: transform 0.55s var(--ease-batida);
+}
+
+.projeto__corpo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 16px;
+  padding-block: clamp(20px, 3vw, 36px);
+}
+
+.projeto__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  min-width: 0;
+}
+
+.projeto__nome {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  line-height: 0.86;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  transition: font-weight 0.45s var(--ease-saida);
+}
+
+.projeto__ano {
+  margin: 0;
+  align-self: start;
+  font: 500 var(--t1) / 1 var(--f-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--fumaca);
+}
+
+.projeto__desc,
+.projeto__tec,
+.projeto__links {
+  grid-column: 1 / -1;
+  margin: 12px 0 0;
+  font: 400 var(--t0) / 1.55 var(--f-texto);
+  max-width: var(--max-texto);
+}
+.projeto__tec { color: var(--fumaca); }
+
+.projeto__links {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+.projeto__link {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  display: inline-block;
+  padding-block: 10px; /* alvo de toque de 44px */
+  margin-block: -10px;
+}
+.projeto__link:hover { text-decoration-thickness: 3px; }
+.projeto__link:focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 4px;
+}
+.projeto__privado { color: var(--fumaca); }
+
+.projeto__oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* destaque: linha alta, nome gigante */
+.projeto--destaque .projeto__corpo { padding-block: clamp(28px, 5vw, 64px); }
+.projeto--destaque .projeto__nome { font-size: var(--t4); font-weight: 800; }
+.projeto--destaque .projeto__ano { font-size: var(--t2); }
+.projeto--destaque .projeto__desc { margin-top: clamp(16px, 2vw, 28px); }
+
+/* secundário: linha baixa */
+.projeto--secundario .projeto__nome { font-size: var(--t2); }
+
+/* imagem: no celular e no toque fica dentro da linha, abaixo do texto */
+.projeto__imagem {
+  grid-column: 1 / -1;
+  margin: 24px 0 0;
+  aspect-ratio: 16 / 10;
+  background: var(--grafite);
+  overflow: hidden;
+}
+.projeto__imagem img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- destaque ativo (teclado sempre; hover só em ponteiro fino) ---------- */
+
+.projeto:focus-within .projeto__fundo { transform: scaleY(1); }
+.projeto:focus-within,
+.projeto:focus-within .projeto__ano,
+.projeto:focus-within .projeto__tec,
+.projeto:focus-within .projeto__privado { color: var(--volt-tinta); }
+.projeto:focus-within .projeto__nome { font-weight: 300; }
+.projeto:focus-within .projeto__link:focus-visible { outline-color: var(--volt-tinta); }
+.projeto:focus-within .etiqueta-exemplo { color: var(--volt-tinta); border-color: currentColor; }
+
+@media (hover: hover) and (pointer: fine) {
+  .projeto:hover { z-index: 2; }
+  .projeto:hover .projeto__fundo { transform: scaleY(1); }
+  .projeto:hover,
+  .projeto:hover .projeto__ano,
+  .projeto:hover .projeto__tec,
+  .projeto:hover .projeto__privado { color: var(--volt-tinta); }
+  .projeto:hover .projeto__nome { font-weight: 300; }
+  .projeto:hover .projeto__link:focus-visible { outline-color: var(--volt-tinta); }
+  .projeto:hover .etiqueta-exemplo { color: var(--volt-tinta); border-color: currentColor; }
+}
+
+/* ---------- desktop: linhas em grade de 12 colunas ---------- */
+
+@media (min-width: 900px) {
+  .projeto__corpo {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    align-items: baseline;
+  }
+  .projeto__cabeca { grid-column: 1 / 10; }
+  .projeto__ano { grid-column: 10 / 13; justify-self: end; align-self: end; }
+
+  .projeto--destaque .projeto__desc { grid-column: 1 / 7; }
+  .projeto--destaque .projeto__tec { grid-column: 7 / 10; margin-top: clamp(16px, 2vw, 28px); }
+  .projeto--destaque .projeto__links { grid-column: 10 / 13; margin-top: clamp(16px, 2vw, 28px); justify-content: flex-end; }
+
+  .projeto--secundario .projeto__corpo { align-items: start; }
+  .projeto--secundario .projeto__cabeca { grid-column: 1 / 5; grid-row: 1 / 3; }
+  .projeto--secundario .projeto__ano { grid-column: 5 / 6; grid-row: 1; justify-self: start; align-self: start; font-size: var(--t1); padding-top: 0.15em; }
+  .projeto--secundario .projeto__desc { grid-column: 6 / 10; grid-row: 1; margin: 0; }
+  .projeto--secundario .projeto__tec { grid-column: 6 / 10; grid-row: 2; margin-top: 4px; }
+  .projeto--secundario .projeto__links { grid-column: 10 / 13; grid-row: 1; margin: 0; justify-content: flex-end; }
+}
+
+/* ---------- ponteiro fino: a imagem flutua e segue o cursor ---------- */
+
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+  .projeto--destaque .projeto__imagem {
+    position: absolute;
+    top: 50%;
+    right: 26%;
+    width: clamp(220px, 24vw, 400px);
+    translate: 0 -50%;
+    margin: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transform: rotate(-3deg);
+    transition: opacity 0.25s;
+  }
+  .projeto--destaque.is-seguindo .projeto__imagem {
+    top: 0;
+    left: 0;
+    right: auto;
+    translate: none;
+    will-change: transform;
+  }
+  .projeto--destaque .projeto__imagem img {
+    clip-path: inset(100% 0 0 0);
+    transform: scale(1.15);
+    transition: clip-path 0.5s var(--ease-batida), transform 0.7s var(--ease-saida);
+  }
+  .projeto--destaque:hover .projeto__imagem,
+  .projeto--destaque:focus-within .projeto__imagem { opacity: 1; }
+  .projeto--destaque:hover .projeto__imagem img,
+  .projeto--destaque:focus-within .projeto__imagem img {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+/* ---------- lista vazia ---------- */
+
+.projetos-vazio {
+  padding-block: clamp(32px, 5vw, 64px);
+  border-top: 1px solid var(--grafite-2);
+  border-bottom: 1px solid var(--grafite-2);
+}
+.projetos-vazio[hidden] { display: none; }
+.projetos-vazio__texto {
+  margin: 0 0 20px;
+  max-width: var(--max-texto);
+  font: 400 var(--t1) / 1.4 var(--f-texto);
+}
+
+/* ---------- movimento reduzido ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .projeto__fundo,
+  .projeto__nome,
+  .projeto__imagem,
+  .projeto__imagem img,
+  .projetos-filtro__botao { transition: none !important; }
+}

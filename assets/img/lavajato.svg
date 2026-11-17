@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Lava Jato">
+  <rect width="1600" height="1000" fill="#000"/>
+  <!-- fila do dia: horários e faixas de ocupação -->
+  <g font-family="Archivo,'Helvetica Neue',Arial,sans-serif" font-size="34" font-weight="600" fill="#8e909a">
+    <text x="112" y="150">08:00</text>
+    <text x="112" y="250">08:30</text>
+    <text x="112" y="350" fill="#f2f1ee">09:00</text>
+    <text x="112" y="450">09:30</text>
+    <text x="112" y="550">10:00</text>
+  </g>
+  <g fill="#17181d">
+    <rect x="260" y="112" width="760" height="54"/>
+    <rect x="260" y="212" width="520" height="54"/>
+    <rect x="260" y="412" width="900" height="54"/>
+    <rect x="260" y="512" width="380" height="54"/>
+  </g>
+  <rect x="260" y="312" width="1228" height="54" fill="#ff2e93"/>
+  <g fill="#8e909a">
+    <rect x="1060" y="128" width="22" height="22"/><rect x="1100" y="128" width="22" height="22"/>
+    <rect x="820" y="228" width="22" height="22"/>
+    <rect x="1200" y="428" width="22" height="22"/><rect x="1240" y="428" width="22" height="22"/><rect x="1280" y="428" width="22" height="22"/>
+  </g>
+  <!-- gotas -->
+  <g fill="#f2f1ee">
+    <path d="M1380 120c0 0-36 46-36 72a36 36 0 0 0 72 0c0-26-36-72-36-72z"/>
+    <path d="M1470 196c0 0-22 28-22 44a22 22 0 0 0 44 0c0-16-22-44-22-44z" opacity=".55"/>
+  </g>
+  <line x1="112" y1="640" x2="1488" y2="640" stroke="#24262d" stroke-width="4"/>
+  <text x="104" y="900" fill="#f2f1ee" font-family="'Big Shoulders Display','Arial Narrow','Roboto Condensed',Impact,sans-serif" font-weight="800" font-size="290" textLength="1080" lengthAdjust="spacingAndGlyphs">LAVA JATO</text>
+</svg>
