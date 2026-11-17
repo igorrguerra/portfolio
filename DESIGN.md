@@ -23,7 +23,7 @@ Regra do neon: o volt aparece em **um só elemento grande por tela** (o nome no 
 
 ## Tipografia
 
-- **Big Shoulders Display** (Google Fonts, eixo `wght` 100–900): toda a tipografia display. Nome, títulos de seção, nomes de projetos e o rodapé gigante. Caixa alta só na display, nunca em rótulos pequenos.
+- **Sofia Sans Extra Condensed** (Google Fonts, eixo `wght` 100–900; trocada da Big Shoulders porque o M dela parecia cortado em tamanho grande): toda a tipografia display. Nome, títulos de seção, nomes de projetos e o rodapé gigante. Caixa alta só na display, nunca em rótulos pequenos.
 - **Archivo** (eixos `wght` e `wdth`): corpo, botões, metadados. Rótulos em caixa normal (sentence case).
 - Sem fonte monoespaçada.
 

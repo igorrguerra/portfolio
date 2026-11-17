@@ -26,5 +26,5 @@
     <path d="M1470 196c0 0-22 28-22 44a22 22 0 0 0 44 0c0-16-22-44-22-44z" opacity=".55"/>
   </g>
   <line x1="112" y1="640" x2="1488" y2="640" stroke="#2a2d35" stroke-width="4"/>
-  <text x="104" y="900" fill="#EDEDED" font-family="'Big Shoulders Display','Arial Narrow','Roboto Condensed',Impact,sans-serif" font-weight="800" font-size="290" textLength="1080" lengthAdjust="spacingAndGlyphs">LAVA JATO</text>
+  <text x="104" y="900" fill="#EDEDED" font-family="'Arial Narrow','Roboto Condensed',Impact,sans-serif" font-weight="800" font-size="290" textLength="1080" lengthAdjust="spacingAndGlyphs">LAVA JATO</text>
 </svg>

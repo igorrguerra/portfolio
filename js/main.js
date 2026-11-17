@@ -337,21 +337,25 @@
     return Promise.race([fontesProntas, espera]).then(function () {
       encaixarHero();
       alinhar();
+      // Inclui o tempo de rede/CSS no limite, inclusive no primeiro acesso.
+      var duracao = Math.min(680, Math.max(0, 1200 - performance.now()));
+      var ritmo = duracao / 680;
+      loader.style.transitionDuration = (420 * ritmo) + "ms";
       var pesos = [100, 400, 700, 900];
       return new Promise(function (ok) {
         pesos.forEach(function (peso, i) {
           setTimeout(function () {
             nome.style.fontWeight = String(peso);
-          }, i * 70);
+          }, i * 70 * ritmo);
         });
         setTimeout(function () {
           loader.classList.add("is-saindo");
           raiz.classList.remove("sem-rolagem");
-        }, 240);
+        }, 240 * ritmo);
         setTimeout(function () {
           terminar();
           ok();
-        }, 680);
+        }, duracao);
       });
     });
   }
@@ -521,7 +525,7 @@
     var alvos = Array.prototype.slice.call(base.querySelectorAll(SELETOR_DISPLAY));
     if (base.matches && base.matches(SELETOR_DISPLAY)) alvos.push(base);
     alvos.forEach(function (t) {
-      if (t.closest(".sem-quebra") || getComputedStyle(t).fontFamily.indexOf("Big Shoulders") === -1) return;
+      if (t.closest(".sem-quebra") || getComputedStyle(t).fontFamily.indexOf("Sofia Sans Extra Condensed") === -1) return;
       var andador = document.createTreeWalker(t, NodeFilter.SHOW_TEXT);
       var nos = [];
       while (andador.nextNode()) {

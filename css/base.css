@@ -240,6 +240,7 @@ html.sem-rolagem {
 .botao--cheio:hover {
   border-color: var(--giz);
   background: var(--giz);
+  color: var(--preto);
 }
 
 .botao--contorno {

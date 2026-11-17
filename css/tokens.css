@@ -5,11 +5,11 @@
   --grafite-2: #22242a;      /* bordas e divisórias */
   --fumaca: #9a9ca5;         /* texto secundário (7:1 sobre o fundo) */
   --giz: #ededed;            /* texto principal */
-  --destaque: #2f6bff;       /* azul elétrico: preenchimentos, barras, foco */
+  --destaque: #2f6aff;       /* azul elétrico: branco sobre azul passa AA */
   --destaque-texto: #6e97ff; /* azul para TEXTO e linhas finas sobre o fundo escuro (7:1) */
-  --destaque-tinta: #ffffff; /* texto sobre fundo --destaque (4.6:1) */
+  --destaque-tinta: #ffffff; /* texto sobre fundo --destaque (4.54:1) */
 
-  --f-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --f-display: "Sofia Sans Extra Condensed", "Arial Narrow", sans-serif;
   --f-texto: "Archivo", system-ui, sans-serif;
 
   --t-1: 0.75rem;

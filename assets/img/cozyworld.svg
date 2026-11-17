@@ -25,7 +25,7 @@
     </g>
   </g>
   <!-- título -->
-  <text x="112" y="780" fill="#EDEDED" font-family="'Big Shoulders Display','Arial Narrow','Roboto Condensed',Impact,sans-serif" font-weight="800" font-size="330" textLength="1180" lengthAdjust="spacingAndGlyphs" letter-spacing="-4">COZY WORLD</text>
+  <text x="112" y="780" fill="#EDEDED" font-family="'Arial Narrow','Roboto Condensed',Impact,sans-serif" font-weight="800" font-size="330" textLength="1180" lengthAdjust="spacingAndGlyphs" letter-spacing="-4">COZY WORLD</text>
   <!-- marcador de gravação em volt -->
   <circle cx="1400" cy="360" r="62" fill="#2F6BFF"/>
   <g fill="none" stroke="#9A9CA5" stroke-width="6">
