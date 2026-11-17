@@ -2,9 +2,9 @@
  * TODO O CONTEÚDO DO SITE FICA AQUI.
  * Edite só este arquivo para trocar textos, projetos, currículos, certificações e contatos.
  *
- * Tudo que estiver marcado com  exemplo: true  (ou com "[EXEMPLO]" no texto) é conteúdo
- * provisório. Troque pelo real e apague a marcação. O site mostra uma etiqueta "Exemplo"
- * em cada item marcado, para ninguém confundir com conteúdo de verdade.
+ * Itens com  exemplo: true  aparecem com a etiqueta "Exemplo".
+ * Itens com  pendente: "texto"  aparecem com uma etiqueta "A confirmar" (dados que ainda faltam).
+ * Campos com valor null são escondidos no site.
  *
  * Caminhos de arquivos são relativos à raiz do site:
  *   currículos   -> assets/curriculos/
@@ -13,132 +13,229 @@
  */
 window.PORTFOLIO = {
   pessoa: {
-    nome: "Igor",            // primeira linha do nome gigante
-    sobrenome: "Guerra",     // segunda linha  [EXEMPLO: confirme como quer seu nome]
-    cargo: "Desenvolvedor full stack",
-    // Frase curta que aparece abaixo do cargo no hero.
-    resumo: "Faço produtos web e jogos do banco de dados até a última animação.",
-    local: "Brasil",
-    disponivel: true,         // mostra "Aberto a novos projetos" no hero e no contato
+    nome: "Igor",
+    sobrenome: "Romero",
+    cargo: "Dev full stack e estudante de Ciência da Computação",
+    resumo: "Estudo Ciência da Computação na UNIFOR, em Fortaleza, e construo produtos web do banco de dados à interface.",
+    local: "Fortaleza, CE",
+    disponivel: true,          // mostra "Aberto a estágio e projetos"
+    disponivelTexto: "Aberto a estágio e projetos",
   },
 
   sobre: {
-    exemplo: true,            // [EXEMPLO] apague quando reescrever o texto
-    // Parágrafos curtos. [EXEMPLO] Reescreva com a sua voz.
     texto: [
-      "Gosto de pegar uma ideia confusa e transformar em algo que roda: um SaaS que um dono de lava jato usa com a mão molhada, um site de estúdio de cinema que carrega rápido mesmo cheio de vídeo, um jogo que ensina sem parecer aula.",
-      "Trabalho com Next.js, TypeScript e Supabase no dia a dia, e com Godot quando o projeto pede jogo. Uso agentes de IA para acelerar, mas reviso cada linha que vai para produção.",
+      "Sou estudante de Ciência da Computação na UNIFOR e entusiasta de inteligência artificial. Gosto de aprender rápido, trabalhar em equipe e transformar uma ideia em algo que funciona de verdade.",
+      "Na ArgoTech trabalhei com treinamento de modelos de IA e design de sites em Figma e Webflow. Hoje desenvolvo aplicações full stack com Next.js, TypeScript e Supabase, e na faculdade resolvo problemas de grafos e algoritmos em Python.",
     ],
-    // Aparecem no texto "Sobre" e rolam no marquee.
+    // Aparecem no "Sobre" e rolam no marquee.
     habilidades: [
-      "Next.js", "React", "TypeScript", "Tailwind CSS", "Supabase", "PostgreSQL",
-      "Node.js", "Godot", "GDScript", "Stripe", "Testes com Vitest", "CI no GitHub Actions",
-      "UI e motion", "Agentes de IA",
+      "Python", "JavaScript", "TypeScript", "Java", "Next.js", "React", "Supabase",
+      "HTML e CSS", "Figma", "Webflow", "Grafos e algoritmos", "Inteligência artificial",
+    ],
+    idiomas: [
+      { idioma: "Português", nivel: "Nativo" },
+      { idioma: "Inglês", nivel: "Intermediário/avançado (B2)" },
+      { idioma: "Espanhol", nivel: "Básico (A2)" },
     ],
   },
 
   /*
    * PROJETOS
-   * destaque: true  -> aparece maior, com imagem, no topo da lista
+   * destaque: true  -> aparece primeiro e maior na grade
+   * categoria       -> "Produto" ou "Faculdade" (aparece no card)
    * tecnologias     -> viram os filtros automaticamente
-   * online          -> link "Ver online" (deixe null se não houver)
-   * codigo          -> link do código (deixe null se não houver)
+   * online          -> link "Ver online" (null esconde)
+   * codigo          -> link do código (null esconde)
    * codigoPrivado   -> true mostra "Código privado" no lugar do link
-   * imagem          -> em assets/img/ (proporção 16:10 ou 16:9). alt é obrigatório
+   * extra           -> link adicional opcional { rotulo, url } (ex.: vídeo, Colab)
+   * imagem          -> em assets/img/ (proporção 16:10). alt é obrigatório
    */
   projetos: [
     {
       nome: "Cozy World",
       ano: 2026,
       destaque: true,
-      descricao: "Site de um estúdio de filmes feitos com IA: catálogo de filmes com prévias em vídeo, briefing de filme sob medida e venda de masterclass com pagamento.",
+      categoria: "Produto",
+      descricao: "Site de um estúdio de filmes feitos com IA, com catálogo de filmes, prévias em vídeo, briefing de filme sob medida e venda de masterclass com pagamento.",
       tecnologias: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Stripe"],
-      online: "https://cozyworld.ai",        // [EXEMPLO: confirme se o domínio já está no ar]
+      online: "https://cozyworld.ai",
+      pendente: "Confirmar se cozyworld.ai já está no ar",
       codigo: "https://github.com/igorrguerra/cozyworld",
       codigoPrivado: true,
-      imagem: { src: "assets/img/cozyworld.svg", alt: "Capa do projeto Cozy World com o título sobre fundo escuro" },
+      extra: null,
+      imagem: { src: "assets/img/cozyworld.svg", alt: "Capa do projeto Cozy World: claquete e o nome do estúdio" },
     },
     {
       nome: "Lava Jato",
       ano: 2026,
       destaque: true,
-      descricao: "SaaS para lava jatos: o cliente agenda pelo link do WhatsApp em menos de um minuto e o dono acompanha fila do dia, clientes e caixa pelo celular.",
-      tecnologias: ["Next.js", "React", "TypeScript", "Supabase", "PostgreSQL", "Vitest"],
-      online: null,                           // [EXEMPLO: coloque o link da demo quando tiver]
+      categoria: "Produto",
+      descricao: "SaaS para lava jatos. O cliente agenda pelo link do WhatsApp em menos de um minuto e o dono acompanha fila do dia, clientes e caixa pelo celular.",
+      tecnologias: ["Next.js", "React", "TypeScript", "Supabase", "PostgreSQL"],
+      online: null,
       codigo: "https://github.com/igorrguerra/lavajato",
       codigoPrivado: true,
-      imagem: { src: "assets/img/lavajato.svg", alt: "Capa do projeto Lava Jato com o título sobre fundo escuro" },
+      extra: null,
+      imagem: { src: "assets/img/lavajato.svg", alt: "Capa do projeto Lava Jato: agenda do dia com um horário destacado" },
     },
     {
       nome: "EcoCity",
       ano: 2025,
       destaque: true,
-      descricao: "RPG educacional sobre meio ambiente. O jogador constrói uma ponte sem derrubar árvores e projeta uma rede de irrigação, resolvendo desafios de grafos.",
+      categoria: "Faculdade",
+      descricao: "Jogo educacional de estratégia com grafos. O jogador planeja uma ponte e uma rede de irrigação para recuperar uma região sem derrubar árvores.",
       tecnologias: ["Godot", "GDScript"],
       online: null,
       codigo: "https://github.com/igorrguerra/ecocity",
       codigoPrivado: true,
-      imagem: { src: "assets/img/ecocity.jpg", alt: "Cena do jogo EcoCity: mapa da rede de irrigação ligando a cisterna aos canteiros" },
+      extra: null,
+      imagem: { src: "assets/img/ecocity.jpg", alt: "Tela do jogo EcoCity com a rede de irrigação ligando a cisterna aos canteiros" },
     },
     {
-      exemplo: true,
-      nome: "Projeto de exemplo A",
-      ano: 2025,
+      nome: "Malha viária da Pensilvânia",
+      ano: 2026,
       destaque: false,
-      descricao: "[EXEMPLO] Descrição curta de um projeto menor. Troque ou apague este item.",
-      tecnologias: ["React", "Node.js"],
-      online: "https://example.com",
-      codigo: "https://github.com/igorrguerra",
-      codigoPrivado: false,
-      imagem: null,
-    },
-    {
-      exemplo: true,
-      nome: "Projeto de exemplo B",
-      ano: 2024,
-      destaque: false,
-      descricao: "[EXEMPLO] Outro projeto de exemplo, só para o filtro ter o que filtrar.",
-      tecnologias: ["TypeScript", "PostgreSQL"],
+      categoria: "Faculdade",
+      descricao: "Análise de uma rede real com 1 milhão de cruzamentos. Testei se ela segue lei de potência e mostrei que a malha viária não é uma rede de escala livre.",
+      tecnologias: ["Python", "Jupyter", "Grafos"],
       online: null,
-      codigo: "https://github.com/igorrguerra",
+      codigo: "https://github.com/igorrguerra/analiseroadnetwork",
       codigoPrivado: false,
-      imagem: null,
+      extra: { rotulo: "Abrir no Colab", url: "https://colab.research.google.com/drive/1ST_nDwdlTcCyZ0kmYWg_N4BXaoDgvslJ" },
+      imagem: { src: "assets/img/malha-viaria.svg", alt: "Ilustração de uma rede de ruas e cruzamentos" },
+    },
+    {
+      nome: "Coloração do mapa do Brasil",
+      ano: 2026,
+      destaque: false,
+      categoria: "Faculdade",
+      descricao: "Algoritmo DSatur aplicado aos 27 estados brasileiros. Encontrou uma coloração válida com apenas 3 cores.",
+      tecnologias: ["Python", "Grafos"],
+      online: null,
+      codigo: "https://github.com/igorrguerra/trabalhoproblemacoloracao",
+      codigoPrivado: false,
+      extra: { rotulo: "Ver vídeo", url: "https://youtu.be/Mloy0kJWXiw" },
+      imagem: { src: "assets/img/coloracao.svg", alt: "Grafo de estados vizinhos pintado com três cores" },
+    },
+    {
+      nome: "Isomorfismo de árvores",
+      ano: 2026,
+      destaque: false,
+      categoria: "Faculdade",
+      descricao: "Decide se duas árvores têm a mesma estrutura usando codificação canônica, ignorando os rótulos dos vértices.",
+      tecnologias: ["Python", "Grafos"],
+      online: null,
+      codigo: "https://github.com/igorrguerra/t6carubbi",
+      codigoPrivado: false,
+      extra: { rotulo: "Ver vídeo", url: "https://www.youtube.com/watch?v=tl2JAxUp6lQ" },
+      imagem: { src: "assets/img/isomorfismo.svg", alt: "Duas árvores com a mesma estrutura lado a lado" },
+    },
+    {
+      nome: "Jzzhu and Cities",
+      ano: 2026,
+      destaque: false,
+      categoria: "Faculdade",
+      descricao: "Solução do problema 449B do Codeforces com Dijkstra: quantas rotas de trem dá para fechar sem piorar a distância até a capital.",
+      tecnologias: ["Python", "Grafos"],
+      online: null,
+      codigo: "https://github.com/igorrguerra/449bcodeforce",
+      codigoPrivado: false,
+      extra: { rotulo: "Ver problema", url: "https://codeforces.com/problemset/problem/449/B" },
+      imagem: { src: "assets/img/dijkstra.svg", alt: "Grafo de cidades com o caminho mínimo até a capital destacado" },
+    },
+    {
+      nome: "Cofre da Panda Land",
+      ano: 2026,
+      destaque: false,
+      categoria: "Faculdade",
+      descricao: "Calcula o mínimo de giros para abrir um cofre de várias chaves, modelando o problema como uma árvore geradora mínima.",
+      tecnologias: ["Python", "Grafos"],
+      online: null,
+      codigo: "https://github.com/igorrguerra/solucaopandasafebox",
+      codigoPrivado: false,
+      extra: null,
+      imagem: { src: "assets/img/cofre.svg", alt: "Cadeado de quatro dígitos ligado a uma árvore geradora" },
+    },
+    {
+      nome: "Simulador de sistema de arquivos",
+      ano: 2026,
+      destaque: false,
+      categoria: "Faculdade",
+      descricao: "Shell em Java que cria, copia, renomeia e apaga arquivos e diretórios, com journaling para manter os dados íntegros em caso de falha.",
+      tecnologias: ["Java"],
+      online: null,
+      codigo: "https://github.com/igorrguerra/Simulador-Sistema-Arquivos",
+      codigoPrivado: false,
+      extra: null,
+      imagem: { src: "assets/img/sistema-arquivos.svg", alt: "Árvore de diretórios com um registro de journal ao lado" },
+    },
+    {
+      nome: "Agenda CLI",
+      ano: 2026,
+      destaque: false,
+      categoria: "Faculdade",
+      descricao: "Agenda de contatos de linha de comando em Elixir, com busca, edição e remoção, escrita no paradigma funcional.",
+      tecnologias: ["Elixir"],
+      online: null,
+      codigo: "https://github.com/igorrguerra/agenda_cli",
+      codigoPrivado: false,
+      extra: null,
+      imagem: { src: "assets/img/agenda-cli.svg", alt: "Terminal com comandos da agenda de contatos" },
     },
   ],
 
   curriculo: {
     arquivos: [
-      { idioma: "Português", sigla: "PT", arquivo: "assets/curriculos/curriculo-pt.pdf", exemplo: true },
-      { idioma: "English", sigla: "EN", arquivo: "assets/curriculos/resume-en.pdf", exemplo: true },
+      { idioma: "Português", sigla: "PT", arquivo: "assets/curriculos/curriculo-pt.pdf" },
+      // Quando tiver a versão em inglês, coloque em assets/curriculos/resume-en.pdf e descomente:
+      // { idioma: "English", sigla: "EN", arquivo: "assets/curriculos/resume-en.pdf" },
     ],
     // Linha do tempo, da mais recente para a mais antiga.
-    // tipo: "experiencia" ou "formacao". fim: null = atual.
+    // tipo: "experiencia" ou "formacao". fim: null = atual. periodo (opcional) substitui o texto do período.
     linhaDoTempo: [
-      { exemplo: true, tipo: "experiencia", inicio: "2025", fim: null, titulo: "Desenvolvedor full stack", lugar: "Freelancer", descricao: "[EXEMPLO] Produtos web sob medida em Next.js e Supabase." },
-      { exemplo: true, tipo: "experiencia", inicio: "2024", fim: "2025", titulo: "Cargo de exemplo", lugar: "Empresa de exemplo", descricao: "[EXEMPLO] O que você fez e qual resultado entregou." },
-      { exemplo: true, tipo: "formacao", inicio: "2023", fim: null, titulo: "Curso superior de exemplo", lugar: "Instituição de exemplo", descricao: "[EXEMPLO] Graduação em andamento." },
-      { exemplo: true, tipo: "formacao", inicio: "2022", fim: "2022", titulo: "Curso livre de exemplo", lugar: "Escola de exemplo", descricao: "[EXEMPLO] Curso complementar." },
+      { tipo: "formacao", inicio: "2026", fim: null, titulo: "AWS Academy Cloud Foundations", lugar: "AWS Academy", descricao: "Curso em andamento." },
+      { tipo: "formacao", inicio: null, fim: null, periodo: "Em andamento", pendente: "Ano de início", titulo: "Bacharelado em Ciência da Computação", lugar: "UNIFOR, Fortaleza", descricao: "Graduação em andamento, com foco em algoritmos, grafos e desenvolvimento de software." },
+      { tipo: "experiencia", inicio: "2023", fim: "2024", periodo: "ago. 2023 a fev. 2024", titulo: "Estagiário", lugar: "ArgoTech", descricao: "Treinamento de modelos de inteligência artificial e design de sites com Figma e Webflow." },
+      { tipo: "formacao", inicio: "2023", fim: "2023", titulo: "Curso de inglês", lugar: "Open English", descricao: "Inglês intermediário/avançado (B2)." },
+      { tipo: "experiencia", inicio: "2022", fim: "2022", periodo: "mai. 2022 a jul. 2022", titulo: "Gestão de redes sociais", lugar: "MDB", descricao: "Acompanhamento e gestão das redes sociais." },
+      { tipo: "formacao", inicio: "2022", fim: "2022", periodo: "Concluído em 2022", titulo: "Ensino médio", lugar: "Colégio Darwin, Fortaleza", descricao: "" },
     ],
   },
 
   /*
    * CERTIFICAÇÕES
+   * status    -> "concluida" ou "andamento" (em andamento mostra a etiqueta e esconde data/credencial vazias)
    * arquivo   -> PDF ou imagem em assets/certificados/ (abre no visualizador). null esconde o botão
    * verificar -> link oficial de validação. null esconde o link
-   * data      -> "AAAA-MM" (o site formata como "mar. 2026")
+   * data      -> "AAAA-MM" ou null
    */
   certificacoes: [
-    { exemplo: true, nome: "Certificação de exemplo em nuvem", emissor: "Emissor de exemplo", data: "2026-03", credencial: "EX-2026-0001", arquivo: "assets/certificados/exemplo-1.pdf", verificar: "https://example.com/verificar/EX-2026-0001" },
-    { exemplo: true, nome: "Certificação de exemplo em front-end", emissor: "Outro emissor", data: "2025-08", credencial: "EX-2025-0142", arquivo: "assets/certificados/exemplo-2.png", verificar: null },
-    { exemplo: true, nome: "Certificação de exemplo em banco de dados", emissor: "Emissor de exemplo", data: "2024-11", credencial: "EX-2024-0777", arquivo: "assets/certificados/exemplo-3.pdf", verificar: "https://example.com/verificar/EX-2024-0777" },
+    {
+      nome: "Huawei Storage",
+      emissor: "Huawei",
+      status: "concluida",
+      data: null,
+      credencial: null,
+      arquivo: null,
+      verificar: null,
+      pendente: "Envie o PDF do certificado, a data e o ID da credencial",
+    },
+    {
+      nome: "AWS Academy Cloud Foundations",
+      emissor: "Amazon Web Services",
+      status: "andamento",
+      data: null,
+      credencial: null,
+      arquivo: null,
+      verificar: null,
+    },
   ],
 
   contato: {
-    exemplo: true,            // [EXEMPLO] apague quando colocar seus contatos reais
-    email: "seuemail@exemplo.com",                   // [EXEMPLO]
-    linkedin: "https://www.linkedin.com/in/seu-perfil", // [EXEMPLO]
+    email: "igorrguerra@gmail.com",
+    linkedin: null,            // coloque a URL do seu LinkedIn aqui
     github: "https://github.com/igorrguerra",
-    whatsapp: "5500000000000",                         // [EXEMPLO] só dígitos, com DDI e DDD
+    whatsapp: "5585999601551", // só dígitos, com DDI e DDD
     mensagemWhatsapp: "Oi, Igor! Vi seu portfólio e queria conversar.",
   },
 };

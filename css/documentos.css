@@ -218,8 +218,8 @@
 
 .credencial:hover .credencial__furo,
 .credencial:focus-within .credencial__furo {
-  background: var(--volt);
-  box-shadow: inset 0 0 0 2px var(--volt);
+  background: var(--destaque);
+  box-shadow: inset 0 0 0 2px var(--destaque);
 }
 
 .credencial__topo {
@@ -454,7 +454,7 @@ html.visualizador-aberto { overflow: hidden; }
 .cv-arquivo :focus-visible,
 .credencial :focus-visible,
 .visualizador :focus-visible {
-  outline: 3px solid var(--volt);
+  outline: 3px solid var(--destaque);
   outline-offset: 3px;
 }
 

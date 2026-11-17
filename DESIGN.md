@@ -90,3 +90,26 @@ Contratos compartilhados:
 - Elemento com `data-reveal` ganha a classe `.is-in` quando entra na tela (o `main.js` cuida disso).
 - O cursor customizado cresce sobre `a, button, [data-cursor]`. Use `data-cursor="Ver"` para mostrar um texto dentro do cursor.
 - `window.PORTFOLIO` (definido em `data.js`) é a única fonte de conteúdo.
+
+---
+
+## Revisão 2 (feedback do Igor, vale por cima do que estiver acima)
+
+O Igor achou a navegação ruim, não gostou de como os projetos aparecem nem do rosa, e mandou o currículo real. Mudanças:
+
+**Cores: escuro + azul elétrico** (tokens em `css/tokens.css`, o rosa saiu):
+`--preto #0A0A0A` fundo, `--grafite #151619` superfícies, `--grafite-2 #22242A` bordas, `--fumaca #9A9CA5` texto secundário, `--giz #EDEDED` texto, `--destaque #2F6BFF` para preenchimentos, barras e foco, `--destaque-texto #6E97FF` para **texto e linhas finas** em azul sobre o fundo escuro (o #2F6BFF não passa AA como texto pequeno), `--destaque-tinta #FFFFFF` para texto sobre fundo azul.
+A variável antiga `--volt` foi renomeada para `--destaque` em todos os arquivos.
+
+**Navegação: barra fixa com links.** O menu em tela cheia sai. Topo fixo com "Igor Romero" à esquerda e os links Sobre, Projetos, Currículo, Certificações e Contato sempre visíveis no desktop, com a seção atual marcada (barra azul embaixo e `aria-current="true"`), via IntersectionObserver. Fundo do topo sólido ou com blur leve, legível sobre qualquer seção. No celular (< 900px), botão "Menu" que abre um painel simples (lista grande de links, sem cortina dramática), com Esc, foco preso e foco de volta. Rolar até a seção tem que compensar a altura do topo (`scroll-margin-top`).
+
+**Projetos: grade de cards com imagem sempre visível.** Nada de imagem que só aparece no hover. Cada card mostra imagem 16:10, categoria (Produto ou Faculdade), ano, nome, descrição, tecnologias e botões claros: "Ver online", "Ver código" (ou o texto "Código privado") e o link `extra` (ex.: "Ver vídeo", "Abrir no Colab"). Os de `destaque: true` vêm primeiro e ocupam mais espaço (ex.: o primeiro ocupa 2 colunas no desktop, ou os 3 destaques numa fileira maior). Grade de 3 colunas no desktop, 2 no tablet e 1 no celular. Filtro por tecnologia continua. Hover discreto e claro: borda azul, leve zoom na imagem. Todo o card não precisa ser um link, mas os botões precisam ser grandes e óbvios.
+
+**Novos campos em `data.js`** (os módulos precisam suportar):
+- `pessoa.disponivelTexto`, `sobre.idiomas[]` ({idioma, nivel}).
+- Projeto: `categoria`, `extra` ({rotulo, url} ou null), `pendente` (texto).
+- Linha do tempo: `inicio` pode ser null, `periodo` (texto que substitui o período calculado), `pendente`.
+- Certificação: `status` ("concluida" | "andamento"), `data`/`credencial`/`arquivo`/`verificar` podem ser null (esconder a linha correspondente), `pendente`.
+- Qualquer item com `pendente: "texto"` mostra uma etiqueta "A confirmar" com o texto em `title` e numa linha pequena visível, para o Igor saber o que falta preencher.
+- `contato.linkedin` pode ser null (esconder).
+- `curriculo.arquivos` pode ter 1 item só (bloco único, sem buraco na grade).

@@ -34,7 +34,7 @@
   color: var(--preto);
 }
 .projetos-filtro__botao:focus-visible {
-  outline: 2px solid var(--volt);
+  outline: 2px solid var(--destaque);
   outline-offset: 3px;
 }
 
@@ -74,7 +74,7 @@
   position: absolute;
   inset: -1px 0 0;
   z-index: -1;
-  background: var(--volt);
+  background: var(--destaque);
   transform: scaleY(0);
   transform-origin: 50% 100%;
   transition: transform 0.55s var(--ease-batida);
@@ -142,7 +142,7 @@
 }
 .projeto__link:hover { text-decoration-thickness: 3px; }
 .projeto__link:focus-visible {
-  outline: 2px solid var(--volt);
+  outline: 2px solid var(--destaque);
   outline-offset: 4px;
 }
 .projeto__privado { color: var(--fumaca); }
@@ -186,10 +186,10 @@
 .projeto:focus-within,
 .projeto:focus-within .projeto__ano,
 .projeto:focus-within .projeto__tec,
-.projeto:focus-within .projeto__privado { color: var(--volt-tinta); }
+.projeto:focus-within .projeto__privado { color: var(--destaque-tinta); }
 .projeto:focus-within .projeto__nome { font-weight: 300; }
-.projeto:focus-within .projeto__link:focus-visible { outline-color: var(--volt-tinta); }
-.projeto:focus-within .etiqueta-exemplo { color: var(--volt-tinta); border-color: currentColor; }
+.projeto:focus-within .projeto__link:focus-visible { outline-color: var(--destaque-tinta); }
+.projeto:focus-within .etiqueta-exemplo { color: var(--destaque-tinta); border-color: currentColor; }
 
 @media (hover: hover) and (pointer: fine) {
   .projeto:hover { z-index: 2; }
@@ -197,10 +197,10 @@
   .projeto:hover,
   .projeto:hover .projeto__ano,
   .projeto:hover .projeto__tec,
-  .projeto:hover .projeto__privado { color: var(--volt-tinta); }
+  .projeto:hover .projeto__privado { color: var(--destaque-tinta); }
   .projeto:hover .projeto__nome { font-weight: 300; }
-  .projeto:hover .projeto__link:focus-visible { outline-color: var(--volt-tinta); }
-  .projeto:hover .etiqueta-exemplo { color: var(--volt-tinta); border-color: currentColor; }
+  .projeto:hover .projeto__link:focus-visible { outline-color: var(--destaque-tinta); }
+  .projeto:hover .etiqueta-exemplo { color: var(--destaque-tinta); border-color: currentColor; }
 }
 
 /* ---------- desktop: linhas em grade de 12 colunas ---------- */

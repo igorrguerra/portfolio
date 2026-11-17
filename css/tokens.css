@@ -1,12 +1,13 @@
 /* Tokens do site. Veja DESIGN.md antes de mudar. */
 :root {
-  --preto: #000000;
-  --grafite: #17181d;
-  --grafite-2: #24262d;
-  --fumaca: #8e909a;
-  --giz: #f2f1ee;
-  --volt: #ff2e93;
-  --volt-tinta: #000000;
+  --preto: #0a0a0a;          /* fundo da página */
+  --grafite: #151619;        /* superfícies: cards, credenciais, visualizador */
+  --grafite-2: #22242a;      /* bordas e divisórias */
+  --fumaca: #9a9ca5;         /* texto secundário (7:1 sobre o fundo) */
+  --giz: #ededed;            /* texto principal */
+  --destaque: #2f6bff;       /* azul elétrico: preenchimentos, barras, foco */
+  --destaque-texto: #6e97ff; /* azul para TEXTO e linhas finas sobre o fundo escuro (7:1) */
+  --destaque-tinta: #ffffff; /* texto sobre fundo --destaque (4.6:1) */
 
   --f-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
   --f-texto: "Archivo", system-ui, sans-serif;

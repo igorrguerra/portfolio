@@ -85,8 +85,8 @@ button {
 }
 
 ::selection {
-  background: var(--volt);
-  color: var(--volt-tinta);
+  background: var(--destaque);
+  color: var(--destaque-tinta);
 }
 
 :focus {
@@ -94,7 +94,7 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid var(--volt);
+  outline: 3px solid var(--destaque);
   outline-offset: 3px;
 }
 
@@ -125,8 +125,8 @@ html.sem-rolagem {
   left: var(--gutter);
   z-index: 200;
   padding: 0.75em 1.1em;
-  background: var(--volt);
-  color: var(--volt-tinta);
+  background: var(--destaque);
+  color: var(--destaque-tinta);
   font-weight: 700;
   text-decoration: none;
   transform: translateY(calc(-100% - 24px));
@@ -161,9 +161,9 @@ html.sem-rolagem {
   display: inline-flex;
   align-items: center;
   padding: 0.2em 0.6em 0.25em;
-  border: 1px solid var(--volt);
+  border: 1px solid var(--destaque);
   border-radius: 2px;
-  color: var(--volt);
+  color: var(--destaque);
   font-family: var(--f-texto);
   font-size: var(--t-1);
   font-weight: 600;
@@ -197,9 +197,9 @@ html.sem-rolagem {
 }
 
 .botao--cheio {
-  border-color: var(--volt);
-  background: var(--volt);
-  color: var(--volt-tinta);
+  border-color: var(--destaque);
+  background: var(--destaque);
+  color: var(--destaque-tinta);
 }
 
 .botao--cheio:hover {
@@ -267,7 +267,7 @@ html.sem-rolagem {
 .topo__ponto {
   width: 0.6em;
   height: 0.6em;
-  background: var(--volt);
+  background: var(--destaque);
   transition: transform 0.35s var(--ease-batida);
 }
 
@@ -297,7 +297,7 @@ html.sem-rolagem {
 .menu__cortina {
   position: fixed;
   inset: 0;
-  background: var(--volt);
+  background: var(--destaque);
   transform: translateY(100%);
   pointer-events: none;
 }
@@ -416,7 +416,7 @@ html.sem-rolagem {
   top: 0;
   left: 0;
   margin: 0;
-  color: var(--volt);
+  color: var(--destaque);
   font-family: var(--f-display);
   font-weight: 100;
   line-height: 0.82;
@@ -526,7 +526,7 @@ html.sem-rolagem {
   width: 0.55em;
   height: 0.55em;
   border-radius: 50%;
-  background: var(--volt);
+  background: var(--destaque);
 }
 
 .hero__rolagem {
@@ -619,8 +619,8 @@ html.sem-rolagem {
 /* ---------- Marquee ---------- */
 .marquee {
   overflow: hidden;
-  background: var(--volt);
-  color: var(--volt-tinta);
+  background: var(--destaque);
+  color: var(--destaque-tinta);
   font-family: var(--f-display);
   font-size: clamp(2.25rem, 6vw, 5.5rem);
   font-weight: 850;
@@ -758,7 +758,7 @@ html.sem-rolagem {
   line-height: 0.9;
   text-decoration: none;
   overflow-wrap: anywhere;
-  background-image: linear-gradient(var(--volt), var(--volt));
+  background-image: linear-gradient(var(--destaque), var(--destaque));
   background-repeat: no-repeat;
   background-position: 0 100%;
   background-size: 0% 0.08em;
@@ -808,7 +808,7 @@ html.sem-rolagem {
 }
 
 .contato__rede:hover {
-  text-decoration-color: var(--volt);
+  text-decoration-color: var(--destaque);
 }
 
 /* ---------- Rodapé ---------- */
@@ -819,7 +819,7 @@ html.sem-rolagem {
 
 .rodape__gigante {
   margin: 0;
-  color: var(--volt);
+  color: var(--destaque);
   font-family: var(--f-display);
   font-size: var(--rodape-tam, min(var(--t-mega), 17vw));
   font-weight: 900;
@@ -892,8 +892,8 @@ html.sem-rolagem {
     height: 64px;
     margin: -32px 0 0 -32px;
     border-radius: 50%;
-    background: var(--volt);
-    color: var(--volt-tinta);
+    background: var(--destaque);
+    color: var(--destaque-tinta);
     font-family: var(--f-texto);
     font-size: 0.8rem;
     font-weight: 700;
