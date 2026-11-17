@@ -1,34 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Cozy World">
-  <rect width="1600" height="1000" fill="#000"/>
+  <rect width="1600" height="1000" fill="#151619"/>
   <!-- película: perfurações nas bordas -->
-  <g fill="#17181d">
+  <g fill="#0a0a0a">
     <rect x="0" y="0" width="1600" height="96"/>
     <rect x="0" y="904" width="1600" height="96"/>
   </g>
-  <g fill="#000">
+  <g fill="#151619">
     <rect x="40" y="30" width="56" height="36" rx="6"/><rect x="176" y="30" width="56" height="36" rx="6"/><rect x="312" y="30" width="56" height="36" rx="6"/><rect x="448" y="30" width="56" height="36" rx="6"/><rect x="584" y="30" width="56" height="36" rx="6"/><rect x="720" y="30" width="56" height="36" rx="6"/><rect x="856" y="30" width="56" height="36" rx="6"/><rect x="992" y="30" width="56" height="36" rx="6"/><rect x="1128" y="30" width="56" height="36" rx="6"/><rect x="1264" y="30" width="56" height="36" rx="6"/><rect x="1400" y="30" width="56" height="36" rx="6"/><rect x="1536" y="30" width="56" height="36" rx="6"/>
     <rect x="40" y="934" width="56" height="36" rx="6"/><rect x="176" y="934" width="56" height="36" rx="6"/><rect x="312" y="934" width="56" height="36" rx="6"/><rect x="448" y="934" width="56" height="36" rx="6"/><rect x="584" y="934" width="56" height="36" rx="6"/><rect x="720" y="934" width="56" height="36" rx="6"/><rect x="856" y="934" width="56" height="36" rx="6"/><rect x="992" y="934" width="56" height="36" rx="6"/><rect x="1128" y="934" width="56" height="36" rx="6"/><rect x="1264" y="934" width="56" height="36" rx="6"/><rect x="1400" y="934" width="56" height="36" rx="6"/><rect x="1536" y="934" width="56" height="36" rx="6"/>
   </g>
   <!-- claquete abstrata: braço aberto com listras diagonais -->
   <g transform="translate(120 170) rotate(-9)">
     <clipPath id="braco"><rect width="900" height="110"/></clipPath>
-    <rect width="900" height="110" fill="#f2f1ee"/>
-    <g clip-path="url(#braco)" fill="#000">
+    <rect width="900" height="110" fill="#EDEDED"/>
+    <g clip-path="url(#braco)" fill="#151619">
       <path d="M40 0h110l-80 110H-40z"/><path d="M260 0h110l-80 110H180z"/><path d="M480 0h110l-80 110H400z"/><path d="M700 0h110l-80 110H620z"/><path d="M920 0h110l-80 110H840z"/>
     </g>
   </g>
   <g transform="translate(120 300)">
-    <rect width="900" height="110" fill="#f2f1ee"/>
+    <rect width="900" height="110" fill="#EDEDED"/>
     <clipPath id="base"><rect width="900" height="110"/></clipPath>
-    <g clip-path="url(#base)" fill="#000">
+    <g clip-path="url(#base)" fill="#151619">
       <path d="M150 0h110l-80 110H70z"/><path d="M370 0h110l-80 110H290z"/><path d="M590 0h110l-80 110H510z"/><path d="M810 0h110l-80 110H730z"/>
     </g>
   </g>
   <!-- título -->
-  <text x="112" y="780" fill="#f2f1ee" font-family="'Big Shoulders Display','Arial Narrow','Roboto Condensed',Impact,sans-serif" font-weight="800" font-size="330" textLength="1180" lengthAdjust="spacingAndGlyphs" letter-spacing="-4">COZY WORLD</text>
+  <text x="112" y="780" fill="#EDEDED" font-family="'Big Shoulders Display','Arial Narrow','Roboto Condensed',Impact,sans-serif" font-weight="800" font-size="330" textLength="1180" lengthAdjust="spacingAndGlyphs" letter-spacing="-4">COZY WORLD</text>
   <!-- marcador de gravação em volt -->
-  <circle cx="1400" cy="360" r="62" fill="#ff2e93"/>
-  <g fill="none" stroke="#8e909a" stroke-width="6">
+  <circle cx="1400" cy="360" r="62" fill="#2F6BFF"/>
+  <g fill="none" stroke="#9A9CA5" stroke-width="6">
     <path d="M1180 180h-60v60"/><path d="M1500 180h60v60"/><path d="M1180 540h-60v-60"/><path d="M1500 540h60v-60"/>
   </g>
 </svg>

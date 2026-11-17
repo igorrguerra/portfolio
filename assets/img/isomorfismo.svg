@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Duas árvores com a mesma estrutura">
+<rect width="1600" height="1000" fill="#151619"/>
+<line x1="410" y1="170" x2="282" y2="380" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="410" y1="170" x2="602" y2="380" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="282" y1="380" x2="154" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="282" y1="380" x2="282" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="282" y1="380" x2="410" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="602" y1="380" x2="602" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="602" y1="590" x2="538" y2="800" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="602" y1="590" x2="666" y2="800" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<circle cx="410" cy="170" r="30" fill="#2F6BFF"/>
+<circle cx="282" cy="380" r="24" fill="#EDEDED"/>
+<circle cx="154" cy="590" r="24" fill="#EDEDED"/>
+<circle cx="282" cy="590" r="24" fill="#EDEDED"/>
+<circle cx="410" cy="590" r="24" fill="#EDEDED"/>
+<circle cx="602" cy="380" r="24" fill="#EDEDED"/>
+<circle cx="602" cy="590" r="24" fill="#EDEDED"/>
+<circle cx="538" cy="800" r="24" fill="#EDEDED"/>
+<circle cx="666" cy="800" r="24" fill="#EDEDED"/>
+<line x1="1190" y1="170" x2="998" y2="380" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="1190" y1="170" x2="1318" y2="380" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="998" y1="380" x2="998" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="998" y1="590" x2="934" y2="800" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="998" y1="590" x2="1062" y2="800" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="1318" y1="380" x2="1190" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="1318" y1="380" x2="1318" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<line x1="1318" y1="380" x2="1446" y2="590" stroke="#5A5E6A" stroke-width="6" stroke-linecap="round"/>
+<circle cx="1190" cy="170" r="30" fill="#2F6BFF"/>
+<circle cx="998" cy="380" r="24" fill="#EDEDED"/>
+<circle cx="998" cy="590" r="24" fill="#EDEDED"/>
+<circle cx="934" cy="800" r="24" fill="#EDEDED"/>
+<circle cx="1062" cy="800" r="24" fill="#EDEDED"/>
+<circle cx="1318" cy="380" r="24" fill="#EDEDED"/>
+<circle cx="1190" cy="590" r="24" fill="#EDEDED"/>
+<circle cx="1318" cy="590" r="24" fill="#EDEDED"/>
+<circle cx="1446" cy="590" r="24" fill="#EDEDED"/>
+<rect x="772" y="470" width="56" height="12" fill="#6E97FF"/><rect x="772" y="512" width="56" height="12" fill="#6E97FF"/>
+</svg>

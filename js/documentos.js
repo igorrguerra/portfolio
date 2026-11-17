@@ -34,6 +34,20 @@
     return item && item.exemplo ? el("span", { class: "etiqueta-exemplo", text: "Exemplo" }) : null;
   }
 
+  // Etiqueta "A confirmar" (texto completo no title) para itens com pendente.
+  function etiquetaPendente(item) {
+    return item && item.pendente
+      ? el("span", { class: "etiqueta-pendente", title: item.pendente, text: "A confirmar" })
+      : null;
+  }
+
+  // Linha pequena e visível com o que falta preencher.
+  function notaPendente(item, classe) {
+    return item && item.pendente
+      ? el("p", { class: "doc-pendente" + (classe ? " " + classe : "") }, ["Falta: " + item.pendente])
+      : null;
+  }
+
   function nomeArquivo(caminho) {
     return String(caminho || "").split("/").pop();
   }
@@ -45,8 +59,14 @@
     return (MESES[i] || "") + " " + m[1];
   }
 
+  function vazio(v) {
+    return v === null || v === undefined || v === "";
+  }
+
   function periodo(item) {
-    if (item.fim === null || item.fim === undefined || item.fim === "") return item.inicio + " até hoje";
+    if (!vazio(item.periodo)) return String(item.periodo);
+    if (vazio(item.inicio)) return vazio(item.fim) ? "Em andamento" : "Até " + item.fim;
+    if (vazio(item.fim)) return item.inicio + " até hoje";
     if (String(item.fim) === String(item.inicio)) return String(item.inicio);
     return item.inicio + " a " + item.fim;
   }
@@ -75,8 +95,9 @@
 
     var titulo = el("h2", { id: "curriculo-titulo", class: "titulo-secao", "data-reveal": true, text: "Currículo" });
 
-    var arquivos = el("div", { class: "cv-arquivos" });
-    (cv.arquivos || []).forEach(function (a) {
+    var listaArquivos = (cv.arquivos || []).filter(function (a) { return a && a.arquivo; });
+    var arquivos = el("div", { class: "cv-arquivos" + (listaArquivos.length === 1 ? " cv-arquivos--unico" : "") });
+    listaArquivos.forEach(function (a) {
       var tituloDoc = "Currículo em " + a.idioma;
       arquivos.appendChild(
         el("article", { class: "cv-arquivo" }, [
@@ -84,6 +105,9 @@
           el("div", { class: "cv-arquivo__info" }, [
             el("h3", { class: "cv-arquivo__idioma", text: a.idioma }),
             etiquetaExemplo(a),
+            etiquetaPendente(a),
+            el("p", { class: "cv-arquivo__formato", text: "Currículo completo em PDF" }),
+            notaPendente(a),
           ]),
           el("div", { class: "cv-arquivo__acoes" }, [
             botaoVer("Ver", a.arquivo, tituloDoc, "botao botao--cheio"),
@@ -102,18 +126,23 @@
     var lista = el("ol", { class: "linha-tempo", "aria-label": "Experiência e formação, da mais recente para a mais antiga" });
     (cv.linhaDoTempo || []).forEach(function (item) {
       var formacao = item.tipo === "formacao";
+      // Sem ano de início: mostra "Agora" (em andamento) ou o ano de fim no lugar do ano grande.
+      var semAno = vazio(item.inicio);
+      var marco = !semAno ? String(item.inicio) : vazio(item.fim) ? "Agora" : String(item.fim);
       lista.appendChild(
         el("li", { class: "linha-tempo__item linha-tempo__item--" + (formacao ? "formacao" : "experiencia") }, [
-          el("p", { class: "linha-tempo__ano", "aria-hidden": "true", text: String(item.inicio) }),
+          el("p", { class: "linha-tempo__ano" + (semAno ? " linha-tempo__ano--texto" : ""), "aria-hidden": "true", text: marco }),
           el("div", { class: "linha-tempo__corpo" }, [
             el("p", { class: "linha-tempo__meta" }, [
               el("span", { class: "linha-tempo__tipo", text: formacao ? "Formação" : "Experiência" }),
-              el("span", { class: "linha-tempo__periodo" }, [el("time", { text: periodo(item) })]),
+              el("span", { class: "linha-tempo__periodo", text: periodo(item) }),
               etiquetaExemplo(item),
+              etiquetaPendente(item),
             ]),
             el("h3", { class: "linha-tempo__titulo", text: item.titulo }),
             el("p", { class: "linha-tempo__lugar", text: item.lugar }),
             item.descricao ? el("p", { class: "linha-tempo__descricao", text: item.descricao }) : null,
+            notaPendente(item),
           ]),
         ])
       );
@@ -133,8 +162,9 @@
     var certs = dados.certificacoes;
     if (!secao || !certs) return;
 
-    var grade = el("ul", { class: "credenciais" });
+    var grade = el("ul", { class: "credenciais" + (certs.length <= 2 ? " credenciais--poucas" : "") });
     certs.forEach(function (c) {
+      var andamento = c.status === "andamento";
       var acoes = el("div", { class: "credencial__acoes" }, [
         c.arquivo ? botaoVer("Ver certificado", c.arquivo, c.nome, "botao botao--contorno credencial__ver") : null,
         c.verificar
@@ -150,18 +180,24 @@
       ]);
 
       grade.appendChild(
-        el("li", { class: "credencial-cordao" }, [
+        el("li", { class: "credencial-cordao" + (andamento ? " credencial-cordao--andamento" : "") }, [
           el("article", { class: "credencial" }, [
             el("span", { class: "credencial__furo", "aria-hidden": "true" }),
             el("div", { class: "credencial__topo" }, [
-              el("p", { class: "credencial__emissor", text: c.emissor }),
-              etiquetaExemplo(c),
+              c.emissor ? el("p", { class: "credencial__emissor", text: c.emissor }) : null,
+              el("div", { class: "credencial__etiquetas" }, [
+                andamento ? el("span", { class: "etiqueta-andamento", text: "Em andamento" }) : null,
+                etiquetaExemplo(c),
+                etiquetaPendente(c),
+              ]),
             ]),
             el("h3", { class: "credencial__nome", text: c.nome }),
             el("dl", { class: "credencial__dados" }, [
-              el("div", null, [el("dt", { text: "Emitida em" }), el("dd", null, [el("time", { datetime: c.data, text: formatarData(c.data) })])]),
+              el("div", null, [el("dt", { text: "Situação" }), el("dd", { text: andamento ? "Em andamento" : "Concluída" })]),
+              c.data ? el("div", null, [el("dt", { text: "Emitida em" }), el("dd", null, [el("time", { datetime: c.data, text: formatarData(c.data) })])]) : null,
               c.credencial ? el("div", null, [el("dt", { text: "Credencial" }), el("dd", { class: "credencial__id", text: c.credencial })]) : null,
             ]),
+            notaPendente(c, "credencial__pendente"),
             acoes.childNodes.length ? acoes : null,
           ]),
         ])

@@ -1,6 +1,6 @@
 /*
- * Seção de projetos: filtro por tecnologia + lista em linhas.
- * Conteúdo vem de window.PORTFOLIO.projetos. Veja DESIGN.md.
+ * Seção de projetos: filtro por tecnologia + grade de cards (DESIGN.md, Revisão 2).
+ * Conteúdo vem de window.PORTFOLIO.projetos.
  */
 (function () {
   "use strict";
@@ -10,8 +10,6 @@
   if (!secao || !Array.isArray(dados)) return;
 
   const TODOS = "__todos__";
-  const reduzMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const ponteiroFino = window.matchMedia("(hover: hover) and (pointer: fine)");
 
   // Destaques primeiro, mantendo a ordem do data.js dentro de cada grupo.
   const projetos = dados
@@ -37,13 +35,15 @@
       }
     }
     filhos.flat().forEach((f) => {
-      if (f === null || f === undefined || f === false) return;
+      if (f === null || f === undefined || f === false || f === "") return;
       n.append(f instanceof Node ? f : document.createTextNode(String(f)));
     });
     return n;
   }
 
   const plural = (n) => (n === 1 ? "1 projeto" : `${n} projetos`);
+  const slug = (s) =>
+    "projeto-" + String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
   /* ---------- estrutura ---------- */
 
@@ -63,137 +63,81 @@
 
   const status = el("p", { class: "projetos-status", "aria-live": "polite", "aria-atomic": "true" });
 
-  const lista = el("ol", { class: "projetos-lista", role: "list" });
-  const linhas = projetos.map(montarLinha);
-  lista.append(...linhas.map((l) => l.li));
+  const grade = el("ul", { class: "projetos-grade", role: "list" });
+  const cards = projetos.map(montarCard);
+  grade.append(...cards.map((c) => c.li));
 
   const vazioTexto = el("p", { class: "projetos-vazio__texto" });
-  const vazioBotao = el("button", { type: "button", class: "botao", text: "Ver todos" });
+  const vazioBotao = el("button", { type: "button", class: "botao botao--contorno", text: "Ver todos" });
   const vazio = el("div", { class: "projetos-vazio", hidden: true }, vazioTexto, vazioBotao);
 
   const topo = el("div", { class: "projetos-topo" }, filtro, status);
-  secao.replaceChildren(titulo, topo, lista, vazio);
+  secao.replaceChildren(titulo, topo, grade, vazio);
 
-  /* ---------- linha de projeto ---------- */
+  /* ---------- card ---------- */
 
-  function montarLinha(p) {
-    const destaque = Boolean(p.destaque);
-    const nomeId = "projeto-" + String(p.nome).toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  function link(href, texto, classe, nomeId) {
+    return el(
+      "a",
+      { href, class: "botao " + classe, target: "_blank", rel: "noopener", "data-cursor": "Ver", "aria-describedby": nomeId },
+      texto
+    );
+  }
 
-    const nome = el("h3", { class: "projeto__nome", id: nomeId }, p.nome);
-    const cabeca = el(
-      "div",
-      { class: "projeto__cabeca" },
-      nome,
-      p.exemplo ? el("span", { class: "etiqueta-exemplo", text: "Exemplo" }) : null
+  function montarCard(p) {
+    const nomeId = slug(p.nome);
+
+    const figura =
+      p.imagem && p.imagem.src
+        ? el(
+            "figure",
+            { class: "card-projeto__imagem" },
+            el("img", { src: p.imagem.src, alt: p.imagem.alt || "", width: "1600", height: "1000", loading: "lazy", decoding: "async" })
+          )
+        : el("div", { class: "card-projeto__imagem card-projeto__imagem--vazia", "aria-hidden": "true" });
+
+    const meta = el(
+      "p",
+      { class: "card-projeto__meta" },
+      p.categoria ? el("span", { class: "card-projeto__categoria" }, p.categoria) : null,
+      p.ano ? el("span", { class: "card-projeto__ano" }, String(p.ano)) : null
     );
 
-    const ano = el("p", { class: "projeto__ano" }, String(p.ano ?? ""));
-    const desc = p.descricao ? el("p", { class: "projeto__desc" }, p.descricao) : null;
+    const etiquetas = [];
+    if (p.exemplo) etiquetas.push(el("span", { class: "etiqueta-exemplo", text: "Exemplo" }));
+    if (p.pendente) etiquetas.push(el("span", { class: "etiqueta-pendente", title: p.pendente, text: "A confirmar" }));
+
+    const nome = el("h3", { class: "card-projeto__nome", id: nomeId }, p.nome);
+    const desc = p.descricao ? el("p", { class: "card-projeto__desc" }, p.descricao) : null;
     const tecs = (p.tecnologias || []).length
-      ? el("p", { class: "projeto__tec" }, el("span", { class: "projeto__oculto", text: "Tecnologias: " }), p.tecnologias.join(", "))
+      ? el("p", { class: "card-projeto__tec" }, el("span", { class: "card-projeto__oculto", text: "Tecnologias: " }), p.tecnologias.join(", "))
       : null;
+    const pendente = p.pendente ? el("p", { class: "card-projeto__pendente" }, p.pendente) : null;
 
-    const links = el("ul", { class: "projeto__links", role: "list" });
-    if (p.online) {
-      links.append(
-        el("li", null, el("a", { href: p.online, target: "_blank", rel: "noopener", "data-cursor": "Ver", "aria-describedby": nomeId, class: "projeto__link" }, "Ver online"))
-      );
-    }
-    if (p.codigoPrivado) {
-      links.append(el("li", { class: "projeto__privado" }, "Código privado"));
-    } else if (p.codigo) {
-      links.append(
-        el("li", null, el("a", { href: p.codigo, target: "_blank", rel: "noopener", "data-cursor": "Ver", "aria-describedby": nomeId, class: "projeto__link" }, "Ver código"))
-      );
-    }
+    const acoes = el("div", { class: "card-projeto__acoes" });
+    if (p.online) acoes.append(link(p.online, "Ver online", "botao--cheio", nomeId));
+    if (p.codigoPrivado) acoes.append(el("span", { class: "card-projeto__privado" }, "Código privado"));
+    else if (p.codigo) acoes.append(link(p.codigo, "Ver código", "botao--contorno", nomeId));
+    if (p.extra && p.extra.url) acoes.append(link(p.extra.url, p.extra.rotulo || "Abrir", "botao--contorno", nomeId));
 
-    let figura = null;
-    if (destaque && p.imagem && p.imagem.src) {
-      figura = el(
-        "figure",
-        { class: "projeto__imagem" },
-        el("img", { src: p.imagem.src, alt: p.imagem.alt || "", width: "1600", height: "1000", loading: "lazy", decoding: "async" })
-      );
-    }
+    const corpo = el(
+      "div",
+      { class: "card-projeto__corpo" },
+      meta.childElementCount ? meta : null,
+      nome,
+      etiquetas.length ? el("p", { class: "card-projeto__etiquetas" }, etiquetas) : null,
+      desc,
+      tecs,
+      pendente,
+      acoes.childElementCount ? acoes : null
+    );
 
     const li = el(
       "li",
-      {
-        class: "projeto " + (destaque ? "projeto--destaque" : "projeto--secundario"),
-        "data-reveal": true,
-      },
-      el("span", { class: "projeto__fundo", "aria-hidden": "true" }),
-      el(
-        "article",
-        { class: "projeto__corpo", "aria-labelledby": nomeId },
-        cabeca,
-        ano,
-        desc,
-        tecs,
-        links.childElementCount ? links : null,
-        figura
-      )
+      { class: "card-projeto" + (p.destaque ? " card-projeto--destaque" : ""), "data-reveal": true },
+      el("article", { class: "card-projeto__artigo", "aria-labelledby": nomeId }, figura, corpo)
     );
-
-    if (figura) ligarImagemFlutuante(li, figura);
     return { li, p };
-  }
-
-  /* ---------- imagem que segue o cursor (só ponteiro fino) ---------- */
-
-  function ligarImagemFlutuante(li, figura) {
-    let alvoX = 0, alvoY = 0, x = 0, y = 0, quadro = 0, ativo = false;
-
-    function limitar(ev) {
-      const r = li.getBoundingClientRect();
-      const w = figura.offsetWidth;
-      const h = figura.offsetHeight;
-      // centro da imagem no cursor, sempre dentro da linha
-      // (a revelação do main.js usa clip-path na linha e cortaria o que saísse dela)
-      alvoX = Math.min(Math.max(ev.clientX - r.left - w / 2, 0), r.width - w);
-      alvoY = h >= r.height ? (r.height - h) / 2 : Math.min(Math.max(ev.clientY - r.top - h / 2, 0), r.height - h);
-    }
-
-    function passo() {
-      x += (alvoX - x) * 0.18;
-      y += (alvoY - y) * 0.18;
-      figura.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${((alvoX - x) * 0.02).toFixed(2)}deg)`;
-      if (ativo && (Math.abs(alvoX - x) > 0.3 || Math.abs(alvoY - y) > 0.3)) {
-        quadro = requestAnimationFrame(passo);
-      } else {
-        quadro = 0;
-      }
-    }
-
-    li.addEventListener("pointerenter", (ev) => {
-      if (!ponteiroFino.matches || ev.pointerType !== "mouse") return;
-      limitar(ev);
-      if (reduzMovimento.matches) {
-        figura.style.transform = "";
-        return;
-      }
-      // entra já no lugar do cursor, sem atravessar a linha
-      x = alvoX;
-      y = alvoY;
-      ativo = true;
-      li.classList.add("is-seguindo");
-      if (!quadro) quadro = requestAnimationFrame(passo);
-    });
-
-    li.addEventListener("pointermove", (ev) => {
-      if (!ativo) return;
-      limitar(ev);
-      if (!quadro) quadro = requestAnimationFrame(passo);
-    });
-
-    li.addEventListener("pointerleave", () => {
-      ativo = false;
-      if (quadro) cancelAnimationFrame(quadro);
-      quadro = 0;
-      li.classList.remove("is-seguindo");
-      figura.style.transform = "";
-    });
   }
 
   /* ---------- filtro ---------- */
@@ -202,25 +146,37 @@
     botoes.forEach((b) => b.setAttribute("aria-pressed", b.dataset.tec === tec ? "true" : "false"));
 
     let visiveis = 0;
-    linhas.forEach(({ li, p }) => {
+    const destaquesVisiveis = [];
+    cards.forEach(({ li, p }) => {
       const mostra = tec === TODOS || (p.tecnologias || []).includes(tec);
       const estavaOculto = li.hidden;
       li.hidden = !mostra;
+      li.classList.remove("card-projeto--largo");
       if (mostra) {
         visiveis++;
-        // itens que voltam a aparecer não podem ficar presos no estado "antes da revelação"
+        if (p.destaque) destaquesVisiveis.push(li);
+        // card que volta a aparecer não pode ficar preso no estado "antes da revelação"
         if (estavaOculto) li.classList.add("is-in");
       }
     });
+    // Com número ímpar de destaques, o primeiro ocupa a largura toda e os outros ficam em pares.
+    if (destaquesVisiveis.length % 2 === 1) destaquesVisiveis[0].classList.add("card-projeto--largo");
+
+    // Sem card sobrando sozinho na última fileira dos comuns.
+    const comuns = cards.filter(({ li, p }) => !li.hidden && !p.destaque).map(({ li }) => li);
+    comuns.forEach((li) => li.classList.remove("card-projeto--metade", "card-projeto--fim-tablet"));
+    const resto = comuns.length % 3; // desktop: 3 por fileira
+    const metades = resto === 1 && comuns.length >= 4 ? 4 : resto === 2 ? 2 : resto === 1 ? 1 : 0;
+    comuns.slice(comuns.length - metades).forEach((li) => li.classList.add("card-projeto--metade"));
+    if (comuns.length % 2 === 1) comuns[comuns.length - 1].classList.add("card-projeto--fim-tablet"); // tablet: 2 por fileira
 
     status.textContent = tec === TODOS ? plural(visiveis) : `${plural(visiveis)} com ${tec}`;
 
     const semResultado = visiveis === 0;
-    lista.hidden = semResultado;
+    grade.hidden = semResultado;
     vazio.hidden = !semResultado;
-    if (semResultado) {
-      vazioTexto.textContent = `Nenhum projeto com ${tec}. Escolha outra tecnologia ou veja todos.`;
-    }
+    if (semResultado) vazioTexto.textContent = `Nenhum projeto com ${tec}. Escolha outra tecnologia ou veja todos.`;
+
     window.observarRevelacoes?.(secao);
   }
 

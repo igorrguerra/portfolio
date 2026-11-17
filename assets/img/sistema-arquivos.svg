@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Árvore de diretórios e registro de journal">
+<rect width="1600" height="1000" fill="#151619"/>
+<path d="M120 122h36.480000000000004l10 -12h49.519999999999996v66H120z" fill="#2F6BFF" stroke="#2F6BFF" stroke-width="5" stroke-linejoin="round"/>
+<path d="M168 190V912" stroke="#5A5E6A" stroke-width="5" fill="none"/>
+<path d="M298 310V482M298 640V700" stroke="#5A5E6A" stroke-width="5" fill="none"/>
+<path d="M428 750V812" stroke="#5A5E6A" stroke-width="5" fill="none"/>
+<path d="M168 263H240" stroke="#5A5E6A" stroke-width="5"/>
+<path d="M250 242h36.480000000000004l10 -12h49.519999999999996v66H250z" fill="#EDEDED" stroke="#EDEDED" stroke-width="5" stroke-linejoin="round"/>
+<path d="M298 373H370" stroke="#5A5E6A" stroke-width="5"/>
+<path d="M390 340h44l20 20v54H390z" fill="none" stroke="#9A9CA5" stroke-width="5" stroke-linejoin="round"/>
+<path d="M298 483H370" stroke="#5A5E6A" stroke-width="5"/>
+<path d="M390 450h44l20 20v54H390z" fill="none" stroke="#9A9CA5" stroke-width="5" stroke-linejoin="round"/>
+<path d="M168 593H240" stroke="#5A5E6A" stroke-width="5"/>
+<path d="M250 572h36.480000000000004l10 -12h49.519999999999996v66H250z" fill="#EDEDED" stroke="#EDEDED" stroke-width="5" stroke-linejoin="round"/>
+<path d="M298 703H370" stroke="#5A5E6A" stroke-width="5"/>
+<path d="M380 682h36.480000000000004l10 -12h49.519999999999996v66H380z" fill="#EDEDED" stroke="#EDEDED" stroke-width="5" stroke-linejoin="round"/>
+<path d="M428 813H500" stroke="#5A5E6A" stroke-width="5"/>
+<path d="M520 780h44l20 20v54H520z" fill="none" stroke="#9A9CA5" stroke-width="5" stroke-linejoin="round"/>
+<path d="M168 913H240" stroke="#5A5E6A" stroke-width="5"/>
+<path d="M260 880h44l20 20v54H260z" fill="none" stroke="#9A9CA5" stroke-width="5" stroke-linejoin="round"/>
+<rect x="820" y="110" width="660" height="780" fill="#1C1E22" stroke="#2A2D35" stroke-width="4"/>
+<rect x="870" y="170" width="420" height="26" fill="#4A4E59"/>
+<path d="M1380 183l14 14l28 -30" fill="none" stroke="#6E97FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="258" width="300" height="26" fill="#4A4E59"/>
+<path d="M1380 271l14 14l28 -30" fill="none" stroke="#6E97FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="346" width="480" height="26" fill="#4A4E59"/>
+<path d="M1380 359l14 14l28 -30" fill="none" stroke="#6E97FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="434" width="360" height="26" fill="#4A4E59"/>
+<path d="M1380 447l14 14l28 -30" fill="none" stroke="#6E97FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="522" width="260" height="26" fill="#4A4E59"/>
+<path d="M1380 535l14 14l28 -30" fill="none" stroke="#6E97FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="610" width="440" height="26" fill="#4A4E59"/>
+<path d="M1380 623l14 14l28 -30" fill="none" stroke="#6E97FF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="698" width="330" height="26" fill="#3A3D46"/>
+<rect x="870" y="786" width="400" height="26" fill="#3A3D46"/>
+<rect x="850" y="678" width="600" height="66" fill="none" stroke="#2F6BFF" stroke-width="5"/>
+</svg>

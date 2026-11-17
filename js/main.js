@@ -1,5 +1,5 @@
 /*
- * Shell do portfólio: topo, menu, loader, hero, marquee, sobre, contato,
+ * Shell do portfólio: topo com navegação, loader, hero, marquee, sobre, contato,
  * rodapé, revelações e cursor. Último script defer da página.
  * Todo o conteúdo vem de window.PORTFOLIO (data.js).
  */
@@ -44,6 +44,19 @@
     return el("span", { classe: "etiqueta-exemplo", texto: "Exemplo" });
   }
 
+  // Etiqueta "A confirmar" + linha pequena com o que falta (campo pendente).
+  function pendente(texto) {
+    if (!texto) return null;
+    return el("div", { classe: "pendente" }, [
+      el("span", { classe: "etiqueta-pendente", title: texto, texto: "A confirmar" }),
+      el("p", { classe: "nota-pendente", texto: texto }),
+    ]);
+  }
+
+  function textoDisponivel() {
+    return pessoa.disponivelTexto || "Aberto a novos projetos";
+  }
+
   function linkExterno(href, texto, classe) {
     return el("a", { href: href, classe: classe, target: "_blank", rel: "noopener" }, [texto]);
   }
@@ -56,25 +69,10 @@
     return parseFloat(valor) || 0;
   }
 
-  /* ---------- Topo ---------- */
+  /* ---------- Topo com navegação ---------- */
+  // Desktop: links sempre visíveis, seção atual marcada (aria-current).
+  // Abaixo de 900px: botão "Menu" abre um painel simples com os mesmos links.
   var topo = document.getElementById("topo");
-  var botaoMenu = null;
-
-  function montarTopo() {
-    if (!topo) return;
-    botaoMenu = el(
-      "button",
-      { type: "button", classe: "topo__menu", "aria-expanded": "false", "aria-controls": "menu" },
-      [el("span", { classe: "topo__menu-texto", texto: "Menu" }), el("span", { classe: "topo__ponto", "aria-hidden": "true" })]
-    );
-    topo.replaceChildren(
-      el("a", { href: "#hero", classe: "topo__nome", "aria-label": nomeCompleto() + ", voltar ao início" }, [pessoa.nome || ""]),
-      botaoMenu
-    );
-  }
-
-  /* ---------- Menu ---------- */
-  var menu = document.getElementById("menu");
   var SECOES = [
     { id: "sobre", rotulo: "Sobre" },
     { id: "projetos", rotulo: "Projetos" },
@@ -82,88 +80,108 @@
     { id: "certificacoes", rotulo: "Certificações" },
     { id: "contato", rotulo: "Contato" },
   ];
-  var menuAberto = false;
-  var timerMenu = 0;
+  var mqPainel = window.matchMedia("(max-width: 899px)");
+  var botaoMenu = null;
+  var nav = null;
+  var painelAberto = false;
 
-  function montarMenu() {
-    if (!menu) return;
-    var lista = el("ul", { classe: "menu__lista" });
-    SECOES.forEach(function (s, i) {
-      var a = el("a", { href: "#" + s.id, classe: "menu__link", style: "--i:" + i }, [s.rotulo]);
-      lista.appendChild(el("li", { classe: "menu__item" }, [a]));
+  function montarTopo() {
+    if (!topo) return;
+    var lista = el("ul", { classe: "topo__lista" });
+    SECOES.forEach(function (s) {
+      if (!document.getElementById(s.id)) return;
+      lista.appendChild(el("li", null, [el("a", { href: "#" + s.id, classe: "topo__link", "data-secao": s.id }, [s.rotulo])]));
     });
-    var extra = el("div", { classe: "menu__extra" });
-    if (contato.email) extra.appendChild(el("a", { href: "mailto:" + contato.email }, [contato.email]));
-    if (pessoa.local) extra.appendChild(el("span", { texto: pessoa.local }));
-    menu.replaceChildren(el("div", { classe: "menu__cortina", "aria-hidden": "true" }), lista, extra);
+    nav = el("nav", { id: "navegacao", classe: "topo__nav", "aria-label": "Seções" }, [lista]);
+    botaoMenu = el("button", { type: "button", classe: "topo__menu", "aria-expanded": "false", "aria-controls": "navegacao" }, [
+      el("span", { classe: "topo__menu-texto", texto: "Menu" }),
+      el("span", { classe: "topo__icone", "aria-hidden": "true" }),
+    ]);
+    topo.replaceChildren(el("a", { href: "#hero", classe: "topo__nome" }, [nomeCompleto()]), nav, botaoMenu);
 
+    botaoMenu.addEventListener("click", function () {
+      if (painelAberto) fecharPainel(true);
+      else abrirPainel();
+    });
+    // Clicar num link fecha o painel; a âncora segue normal (scroll-margin-top compensa o topo).
     lista.addEventListener("click", function (e) {
-      var a = e.target.closest("a");
-      if (!a) return;
-      e.preventDefault();
-      var alvo = document.querySelector(a.getAttribute("href"));
-      fecharMenu(false);
-      if (alvo) irPara(alvo);
+      if (e.target.closest("a") && painelAberto) fecharPainel(false);
     });
+    var mudouLargura = function () {
+      if (!mqPainel.matches && painelAberto) fecharPainel(false);
+    };
+    if (mqPainel.addEventListener) mqPainel.addEventListener("change", mudouLargura);
   }
 
-  function irPara(alvo) {
-    alvo.scrollIntoView({ behavior: semMovimento() ? "auto" : "smooth", block: "start" });
-    if (!alvo.hasAttribute("tabindex")) alvo.setAttribute("tabindex", "-1");
-    alvo.focus({ preventScroll: true });
-    if (history.replaceState) history.replaceState(null, "", "#" + alvo.id);
+  function medirTopo() {
+    if (topo) raiz.style.setProperty("--topo-alt", Math.ceil(topo.getBoundingClientRect().height) + "px");
   }
 
-  function focaveisMenu() {
-    return [botaoMenu].concat(Array.prototype.slice.call(menu.querySelectorAll("a[href]")));
-  }
-
-  function abrirMenu() {
-    if (menuAberto || !menu) return;
-    menuAberto = true;
-    clearTimeout(timerMenu);
-    menu.classList.remove("is-fechando");
-    menu.hidden = false;
-    void menu.offsetWidth; // aplica o estado inicial antes da transição
-    menu.classList.add("is-aberto");
+  function abrirPainel() {
+    painelAberto = true;
+    nav.classList.add("is-aberto");
     raiz.classList.add("sem-rolagem");
     botaoMenu.setAttribute("aria-expanded", "true");
     botaoMenu.querySelector(".topo__menu-texto").textContent = "Fechar";
-    var primeiro = menu.querySelector(".menu__link");
-    if (primeiro) primeiro.focus({ preventScroll: true });
-    document.addEventListener("keydown", teclasMenu);
+    var primeiro = nav.querySelector("a");
+    if (primeiro) primeiro.focus();
+    document.addEventListener("keydown", teclasPainel);
   }
 
-  function fecharMenu(devolverFoco) {
-    if (!menuAberto) return;
-    menuAberto = false;
-    document.removeEventListener("keydown", teclasMenu);
+  function fecharPainel(devolverFoco) {
+    painelAberto = false;
+    nav.classList.remove("is-aberto");
+    raiz.classList.remove("sem-rolagem");
     botaoMenu.setAttribute("aria-expanded", "false");
     botaoMenu.querySelector(".topo__menu-texto").textContent = "Menu";
-    raiz.classList.remove("sem-rolagem");
-    if (devolverFoco !== false) botaoMenu.focus({ preventScroll: true });
-    menu.classList.add("is-fechando");
-    timerMenu = setTimeout(
-      function () {
-        menu.hidden = true;
-        menu.classList.remove("is-aberto", "is-fechando");
-      },
-      semMovimento() ? 0 : 420
-    );
+    document.removeEventListener("keydown", teclasPainel);
+    if (devolverFoco) botaoMenu.focus();
   }
 
-  function teclasMenu(e) {
+  function teclasPainel(e) {
     if (e.key === "Escape") {
       e.preventDefault();
-      fecharMenu(true);
+      fecharPainel(true);
       return;
     }
     if (e.key !== "Tab") return;
-    var itens = focaveisMenu();
+    var itens = [botaoMenu].concat(Array.prototype.slice.call(nav.querySelectorAll("a[href]")));
     var i = itens.indexOf(document.activeElement);
     e.preventDefault();
     var prox = e.shiftKey ? (i <= 0 ? itens.length - 1 : i - 1) : i === -1 || i === itens.length - 1 ? 0 : i + 1;
     itens[prox].focus();
+  }
+
+  // Marca a seção que cruza a faixa logo abaixo do topo.
+  function ligarSecaoAtual() {
+    if (!nav || !("IntersectionObserver" in window)) return;
+    var links = {};
+    Array.prototype.forEach.call(nav.querySelectorAll("[data-secao]"), function (a) {
+      links[a.getAttribute("data-secao")] = a;
+    });
+    var visiveis = {};
+    function marcar() {
+      var atual = null;
+      SECOES.forEach(function (s) {
+        if (visiveis[s.id]) atual = atual || s.id;
+      });
+      Object.keys(links).forEach(function (id) {
+        if (id === atual) links[id].setAttribute("aria-current", "true");
+        else links[id].removeAttribute("aria-current");
+      });
+    }
+    var io = new IntersectionObserver(
+      function (entradas) {
+        entradas.forEach(function (en) {
+          visiveis[en.target.id] = en.isIntersecting;
+        });
+        marcar();
+      },
+      { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
+    );
+    Object.keys(links).forEach(function (id) {
+      io.observe(document.getElementById(id));
+    });
   }
 
   /* ---------- Hero ---------- */
@@ -185,8 +203,9 @@
 
     var texto = el("div", { classe: "hero__texto" }, [
       pessoa.resumo ? el("p", { classe: "hero__resumo", texto: pessoa.resumo }) : null,
-      pessoa.disponivel ? el("p", { classe: "status", texto: "Aberto a novos projetos" }) : null,
+      pessoa.disponivel ? el("p", { classe: "status", texto: textoDisponivel() }) : null,
       pessoa.exemplo ? el("p", null, [etiquetaExemplo()]) : null,
+      pendente(pessoa.pendente),
     ]);
 
     var rolagem = el("a", { href: "#sobre", classe: "hero__rolagem" }, [
@@ -375,6 +394,7 @@
       })
     );
     if (sobre.exemplo) texto.appendChild(el("p", null, [etiquetaExemplo()]));
+    if (sobre.pendente) texto.appendChild(pendente(sobre.pendente));
 
     var habilidades = null;
     if ((sobre.habilidades || []).length) {
@@ -386,6 +406,17 @@
         el("h3", { id: "sobre-habilidades", classe: "sobre__subtitulo", texto: "Com o que trabalho" }),
         lista,
       ]);
+    }
+    if ((sobre.idiomas || []).length) {
+      habilidades = habilidades || el("div", { classe: "sobre__habilidades" });
+      var idiomas = el("ul", { classe: "sobre__idiomas", "aria-labelledby": "sobre-idiomas" });
+      sobre.idiomas.forEach(function (d) {
+        idiomas.appendChild(
+          el("li", null, [el("span", { texto: d.idioma || "" }), d.nivel ? el("span", { classe: "sobre__nivel", texto: d.nivel }) : null])
+        );
+      });
+      habilidades.appendChild(el("h3", { id: "sobre-idiomas", classe: "sobre__subtitulo", texto: "Idiomas" }));
+      habilidades.appendChild(idiomas);
     }
     secao.replaceChildren(titulo, el("div", { classe: "sobre__grade" }, [texto, habilidades]));
   }
@@ -415,7 +446,7 @@
     if (!secao) return;
     var filhos = [el("h2", { id: "contato-titulo", classe: "titulo-secao", "data-reveal": true }, ["Contato"])];
 
-    if (pessoa.disponivel) filhos.push(el("p", { classe: "status contato__status", texto: "Aberto a novos projetos" }));
+    if (pessoa.disponivel) filhos.push(el("p", { classe: "status contato__status", texto: textoDisponivel() }));
 
     if (contato.email) {
       filhos.push(el("p", null, [el("a", { href: "mailto:" + contato.email, classe: "contato__email" }, [contato.email])]));
@@ -454,6 +485,7 @@
       rede("https://wa.me/" + num + msg, "WhatsApp");
     }
     if (redes.children.length) filhos.push(redes);
+    if (contato.pendente) filhos.push(pendente(contato.pendente));
 
     secao.replaceChildren.apply(secao, filhos);
   }
@@ -611,25 +643,19 @@
 
   /* ---------- Início ---------- */
   montarTopo();
-  montarMenu();
+  medirTopo();
   montarHero();
   montarMarquee();
   montarSobre();
   montarContato();
   montarRodape();
 
-  if (botaoMenu) {
-    botaoMenu.addEventListener("click", function () {
-      if (menuAberto) fecharMenu(true);
-      else abrirMenu();
-    });
-  }
-
   encaixarHero();
   encaixarRodape();
 
   var fontesProntas = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
   fontesProntas.then(function () {
+    medirTopo();
     encaixarHero();
     encaixarRodape();
     ajustarMarquee();
@@ -643,6 +669,7 @@
   window.addEventListener("resize", function () {
     clearTimeout(timerTela);
     timerTela = setTimeout(function () {
+      medirTopo();
       encaixarHero();
       encaixarRodape();
       ajustarMarquee();
@@ -663,6 +690,7 @@
   // DOMContentLoaded); as revelações e o cursor ligam depois deles.
   function finalizar() {
     observarRevelacoes(document);
+    ligarSecaoAtual();
     ligarCursor();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", finalizar);
