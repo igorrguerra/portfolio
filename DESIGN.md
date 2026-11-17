@@ -113,3 +113,27 @@ A variável antiga `--volt` foi renomeada para `--destaque` em todos os arquivos
 - Qualquer item com `pendente: "texto"` mostra uma etiqueta "A confirmar" com o texto em `title` e numa linha pequena visível, para o Igor saber o que falta preencher.
 - `contato.linkedin` pode ser null (esconder).
 - `curriculo.arquivos` pode ter 1 item só (bloco único, sem buraco na grade).
+
+---
+
+## Revisão 4: site com páginas separadas (vale por cima de tudo acima)
+
+O Igor pediu: "deixa a navegação normal", "não tô gostando que tá muito landing page", "faça umas animações muito loucas na página inicial, bem cara de portfólio de dev, pra mostrar que tá bom", e "separe tudo".
+A Revisão 3 (página única, sem navegação) ficou guardada no branch `revisao-3-pagina-unica` e NÃO é a base daqui. A base é a Revisão 2: paleta azul, grade de projetos e documentos.
+
+**Páginas** (todas com o mesmo cabeçalho e rodapé):
+
+| Página | Arquivo | Conteúdo | Dono |
+|---|---|---|---|
+| Início | `index.html` + `css/home.css` + `js/home.js` | animação de abertura forte de dev, chamada curta, 3 projetos em destaque e links para as outras páginas | worker Início |
+| Sobre | `sobre.html` | texto do sobre, habilidades e idiomas | worker Shell |
+| Projetos | `projetos.html` | grade e filtro (js/projetos.js da Revisão 2) | worker Shell (só integração) |
+| Currículo | `curriculo.html` | PDF Ver/Baixar e linha do tempo (js/documentos.js) | worker Shell (só integração) |
+| Certificações | `certificacoes.html` | credenciais e visualizador (js/documentos.js) | worker Shell (só integração) |
+| Contato | `contato.html` | e-mail gigante, Copiar e-mail, GitHub, WhatsApp | worker Shell |
+
+**Navegação normal:** cabeçalho no topo de todas as páginas, com "IGOR ROMERO" (link para o Início) e os links Início, Sobre, Projetos, Currículo, Certificações e Contato. A página atual vem de `body[data-pagina]` e ganha `aria-current="page"` e um sublinhado azul. É uma navegação **entre páginas** (links comuns), sem âncoras, sem IntersectionObserver e sem "seção atual". O cabeçalho é `position: sticky; top: 0` com fundo sólido `--preto` e borda inferior. Nada de transform, filter ou backdrop-filter nele nem nos ancestrais. No celular, um botão "Menu" abre uma lista simples logo abaixo do cabeçalho, sem animação teatral, e fecha com Esc ou clique fora.
+
+**Scripts:** `js/main.js` sai e entra `js/shell.js` (cabeçalho, rodapé, sobre, contato, etiquetas e cursor opcional). Cada página carrega só o script dela. `documentos.js` precisa funcionar quando só existir `#curriculo` ou só `#certificacoes`.
+
+**Movimento:** a animação forte fica **só no Início**. As outras páginas são calmas e rápidas, sem revelações que escondam conteúdo (nada com opacity 0 esperando observer). Sem loader de tela cheia nas páginas internas.
