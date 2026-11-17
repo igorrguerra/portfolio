@@ -194,7 +194,7 @@
       el("span", { classe: "hero__linha-rolagem", "aria-hidden": "true" }),
     ]);
 
-    hero.replaceChildren(heroNome, el("div", { classe: "hero__info" }, [cargo, texto]), rolagem);
+    hero.replaceChildren(heroNome, el("div", { classe: "hero__info" }, [cargo, texto, rolagem]));
   }
 
   // Encaixa as linhas na largura disponível, medindo no peso 900 (o mais largo).
@@ -218,10 +218,23 @@
 
   function encaixarHero() {
     if (!heroNome) return;
-    // Teto: o maior valor de --t-mega (26rem).
     var rem = px(getComputedStyle(raiz).fontSize) || 16;
+    var linhas = Array.prototype.slice.call(heroNome.querySelectorAll(".hero__linha"));
+    var entrelinha = (px(getComputedStyle(heroNome).lineHeight) / px(getComputedStyle(heroNome).fontSize)) || 0.82;
+    var alturaLinhas = Math.max(1, linhas.length) * entrelinha; // altura do nome em "em"
+    var vh = document.documentElement.clientHeight || window.innerHeight;
+
+    // A primeira tela mostra nome, cargo e a indicação de rolagem:
+    // o nome fica com o que sobra da altura, e no máximo 62% dela.
+    var est = getComputedStyle(hero);
+    var info = hero.querySelector(".hero__info");
+    var outros = px(est.paddingTop) + px(est.paddingBottom) + (info ? info.offsetHeight + px(getComputedStyle(info).paddingTop) : 0);
+    var tetoAltura = Math.min(0.62 * vh, vh - outros) / alturaLinhas;
+
+    // Teto final: 26rem (maior valor de --t-mega), com piso de 3.5rem.
+    var teto = Math.max(3.5 * rem, Math.min(26 * rem, tetoAltura));
     heroNome.classList.add("is-medido");
-    encaixar(heroNome, Array.prototype.slice.call(heroNome.querySelectorAll(".hero__linha")), "--nome-tam", hero, 26 * rem);
+    encaixar(heroNome, linhas, "--nome-tam", hero, teto);
     medirHero();
   }
 
@@ -462,6 +475,34 @@
     encaixar(rodapeGigante, [rodapeGigante.firstChild], "--rodape-tam", rodape, 0);
   }
 
+  /* ---------- Títulos display: quebra só em espaços ---------- */
+  // O navegador quebra linha depois de "-" (FRONT-END). Envolver a palavra
+  // em .sem-quebra (white-space: nowrap) deixa só os espaços como quebra.
+  var SELETOR_DISPLAY = ".titulo-secao, .projeto__nome, .credencial__nome, h1, h2, h3, h4";
+
+  function protegerHifens(raizBusca) {
+    var base = raizBusca || document;
+    var alvos = Array.prototype.slice.call(base.querySelectorAll(SELETOR_DISPLAY));
+    if (base.matches && base.matches(SELETOR_DISPLAY)) alvos.push(base);
+    alvos.forEach(function (t) {
+      if (t.closest(".sem-quebra") || getComputedStyle(t).fontFamily.indexOf("Big Shoulders") === -1) return;
+      var andador = document.createTreeWalker(t, NodeFilter.SHOW_TEXT);
+      var nos = [];
+      while (andador.nextNode()) {
+        var n = andador.currentNode;
+        if (/\S-\S/.test(n.nodeValue) && !(n.parentNode.closest && n.parentNode.closest(".sem-quebra"))) nos.push(n);
+      }
+      nos.forEach(function (n) {
+        var frag = document.createDocumentFragment();
+        n.nodeValue.split(/(\S*\S-\S\S*)/).forEach(function (parte, i) {
+          if (!parte) return;
+          frag.appendChild(i % 2 ? el("span", { classe: "sem-quebra", texto: parte }) : document.createTextNode(parte));
+        });
+        n.parentNode.replaceChild(frag, n);
+      });
+    });
+  }
+
   /* ---------- Revelações ---------- */
   var observador = null;
 
@@ -475,6 +516,7 @@
 
   function observarRevelacoes(raizBusca) {
     var base = raizBusca || document;
+    protegerHifens(base);
     if (semMovimento() || !("IntersectionObserver" in window)) {
       revelarTudo(base);
       return;

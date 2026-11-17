@@ -447,7 +447,7 @@ html.sem-rolagem {
   display: flex;
   flex-direction: column;
   min-height: 100svh;
-  padding: clamp(80px, 9vw, 120px) var(--gutter) clamp(24px, 3vw, 40px);
+  padding: min(clamp(80px, 9vw, 120px), max(72px, 12svh)) var(--gutter) clamp(20px, 3svh, 40px);
 }
 
 .hero__nome {
@@ -477,7 +477,8 @@ html.sem-rolagem {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--gutter);
   row-gap: 20px;
-  margin-top: clamp(28px, 4vw, 56px);
+  margin-top: auto;
+  padding-top: clamp(20px, 4svh, 56px);
 }
 
 .hero__cargo {
@@ -497,6 +498,7 @@ html.sem-rolagem {
 
 .hero__texto {
   grid-column: 7 / -1;
+  grid-row: 1 / span 2;
   display: grid;
   gap: 18px;
   align-content: start;
@@ -526,14 +528,16 @@ html.sem-rolagem {
 }
 
 .hero__rolagem {
+  grid-column: 1 / span 5;
+  grid-row: 2;
   display: inline-flex;
   align-items: center;
+  align-self: end;
+  justify-self: start;
   gap: 16px;
-  margin-top: auto;
-  padding-top: clamp(40px, 6vw, 72px);
+  padding-block: 10px;
   color: var(--fumaca);
   text-decoration: none;
-  align-self: flex-start;
 }
 
 .hero__rolagem:hover {
@@ -588,9 +592,26 @@ html.sem-rolagem {
 
 @media (max-width: 767px) {
   .hero__cargo,
-  .hero__texto {
+  .hero__texto,
+  .hero__rolagem {
     grid-column: 1 / -1;
+    grid-row: auto;
   }
+
+  .hero__info {
+    row-gap: 16px;
+  }
+}
+
+/* ---------- Títulos display: sem hifenização, quebra só em espaços ---------- */
+/* O JS envolve palavras com hífen (ex.: FRONT-END) em .sem-quebra. */
+:where(h1, h2, h3, h4, .titulo-secao, .hero__nome, .rodape__gigante, .menu__link, [class*="__nome"]) {
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+.sem-quebra {
+  white-space: nowrap;
 }
 
 /* ---------- Marquee ---------- */
