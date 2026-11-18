@@ -28,8 +28,74 @@
   <header class="topo" id="topo"></header>
 
   <main id="conteudo">
-    <!-- home.js / home.css: animação de abertura e conteúdo da página inicial -->
-    <div id="inicio"></div>
+    <!-- home.js / home.css: hero com o grafo vivo e o conteúdo da página inicial.
+         O HTML abaixo é a versão sem JavaScript; o home.js reescreve os textos a partir do data.js. -->
+    <section class="hero" id="hero" aria-labelledby="hero-nome">
+      <h1 class="hero__nome" id="hero-nome"><span>Igor</span> <span>Romero</span></h1>
+      <div class="hud" id="hud">
+        <p class="hud__terminal">
+          <span class="hud__prompt" aria-hidden="true">$ whoami</span>
+          <span class="hud__cargo" id="hero-cargo">Dev full stack e estudante de Ciência da Computação</span>
+        </p>
+        <p class="hud__dica" id="hud-dica" hidden>Passe o mouse para empurrar os nós, arraste para puxar e clique para rodar uma busca.</p>
+        <dl class="hud__stats" id="hud-stats" aria-hidden="true" hidden>
+          <div><dt>nós</dt><dd data-hud="nos">0</dd></div>
+          <div><dt>arestas</dt><dd data-hud="arestas">0</dd></div>
+          <div><dt>algoritmo</dt><dd data-hud="algo">formando</dd></div>
+          <div><dt>fps</dt><dd data-hud="fps">0</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="apresenta" aria-label="Apresentação">
+      <p class="apresenta__resumo" id="home-resumo">Estudo Ciência da Computação na UNIFOR, em Fortaleza, e construo produtos web do banco de dados à interface.</p>
+      <p class="apresenta__meta" id="home-meta">Fortaleza, CE<br /><span class="apresenta__disponivel">Aberto a estágio e projetos</span></p>
+      <p class="apresenta__mais"><a class="home-link" href="sobre.html">Mais sobre mim</a></p>
+    </section>
+
+    <section class="destaques" aria-labelledby="destaques-titulo">
+      <div class="destaques__topo">
+        <h2 class="destaques__titulo" id="destaques-titulo">Projetos em destaque</h2>
+        <a class="botao botao--contorno" href="projetos.html">Ver todos os projetos</a>
+      </div>
+      <ul class="destaques__lista" id="home-destaques">
+        <li class="card">
+          <div class="card__moldura"><img class="card__img" src="assets/img/cozyworld.svg" alt="Capa do projeto Cozy World: claquete e o nome do estúdio" width="800" height="500" loading="lazy" /></div>
+          <div class="card__corpo">
+            <p class="card__meta">Produto, 2026</p>
+            <h3 class="card__nome"><a href="projetos.html">Cozy World</a></h3>
+            <p class="card__desc">Site de um estúdio de filmes feitos com IA, com catálogo de filmes, prévias em vídeo, briefing de filme sob medida e venda de masterclass com pagamento.</p>
+          </div>
+        </li>
+        <li class="card">
+          <div class="card__moldura"><img class="card__img" src="assets/img/lavajato.svg" alt="Capa do projeto Lava Jato: agenda do dia com um horário destacado" width="800" height="500" loading="lazy" /></div>
+          <div class="card__corpo">
+            <p class="card__meta">Produto, 2026</p>
+            <h3 class="card__nome"><a href="projetos.html">Lava Jato</a></h3>
+            <p class="card__desc">SaaS para lava jatos. O cliente agenda pelo link do WhatsApp em menos de um minuto e o dono acompanha fila do dia, clientes e caixa pelo celular.</p>
+          </div>
+        </li>
+        <li class="card">
+          <div class="card__moldura"><img class="card__img" src="assets/img/ecocity.jpg" alt="Tela do jogo EcoCity com a rede de irrigação ligando a cisterna aos canteiros" width="800" height="500" loading="lazy" /></div>
+          <div class="card__corpo">
+            <p class="card__meta">Faculdade, 2025</p>
+            <h3 class="card__nome"><a href="projetos.html">EcoCity</a></h3>
+            <p class="card__desc">Jogo educacional de estratégia com grafos. O jogador planeja uma ponte e uma rede de irrigação para recuperar uma região sem derrubar árvores.</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <nav class="atalhos" aria-label="Atalhos">
+      <a class="atalho" href="curriculo.html">
+        <span class="atalho__nome">Currículo</span>
+        <span class="atalho__desc">Linha do tempo e PDF para ver ou baixar</span>
+      </a>
+      <a class="atalho" href="contato.html">
+        <span class="atalho__nome">Contato</span>
+        <span class="atalho__desc" id="home-email">igorrguerra@gmail.com</span>
+      </a>
+    </nav>
   </main>
 
   <!-- shell.js / base.css -->

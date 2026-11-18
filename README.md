@@ -12,6 +12,21 @@ python3 -m http.server 8000
 
 Abra http://localhost:8000 no navegador. Para parar o servidor, pressione `Ctrl+C`. Não precisa instalar pacotes.
 
+## Páginas
+
+Todas as páginas compartilham cabeçalho e rodapé. Os links do cabeçalho abrem cada página, e a página atual aparece sublinhada em azul. No celular, o botão “Menu” abre a lista de links.
+
+| Página | Arquivo | O que mostra |
+| --- | --- | --- |
+| Início | `index.html` | Animação de abertura, apresentação curta, três projetos em destaque e links para as outras páginas. |
+| Sobre | `sobre.html` | Apresentação, habilidades e idiomas. |
+| Projetos | `projetos.html` | Grade de projetos com imagens, filtros por tecnologia e links para os trabalhos. |
+| Currículo | `curriculo.html` | Currículos para ver e baixar, além da linha do tempo de experiência e formação. |
+| Certificações | `certificacoes.html` | Credenciais, status dos cursos e visualizador de certificados. |
+| Contato | `contato.html` | E-mail com opção de copiar e links de contato disponíveis, como GitHub e WhatsApp. |
+
+O conteúdo de todas elas continua em `data.js`. A animação de abertura fica no Início; as páginas internas apresentam o conteúdo diretamente.
+
 ## Como colocar seu conteúdo
 
 Abra `data.js` em um editor. Preserve as chaves, aspas e vírgulas; use `true` e `false` sem aspas e `null` para valores ausentes. Nos campos opcionais, `null` esconde a informação ou o botão correspondente; na linha do tempo, `fim: null` indica que o item está em andamento. Duplique um item dentro de uma lista para acrescentar conteúdo ou remova o objeto inteiro para excluí-lo.
@@ -33,7 +48,7 @@ Em `pessoa`, preencha:
 ### Sobre
 
 - `sobre.texto`: lista de parágrafos, cada um entre aspas.
-- `sobre.habilidades`: lista de habilidades; elas também aparecem na faixa de texto do site.
+- `sobre.habilidades`: lista de habilidades exibidas na página Sobre.
 - `sobre.idiomas`: lista de objetos com `idioma` e `nivel`, como `{ idioma: "Inglês", nivel: "Intermediário/avançado (B2)" }`.
 
 ### Projetos
@@ -131,13 +146,14 @@ Para atualizar conteúdo, basta editar `data.js` e colocar os documentos e image
 
 | Arquivo | Responsabilidade |
 | --- | --- |
-| `index.html` | Estrutura, fontes e carregamento dos scripts. |
+| `index.html`, `sobre.html`, `projetos.html`, `curriculo.html`, `certificacoes.html`, `contato.html` | Estrutura das páginas, fontes e carregamento dos scripts. |
 | `css/tokens.css` | Cores, fontes e medidas compartilhadas. |
-| `css/base.css`, `css/projetos.css`, `css/documentos.css` | Layout e aparência. |
-| `js/main.js`, `js/projetos.js`, `js/documentos.js` | Renderização e interações. |
+| `css/base.css`, `css/home.css`, `css/projetos.css`, `css/documentos.css` | Layout e aparência. |
+| `js/shell.js` | Cabeçalho, rodapé e conteúdo das páginas Sobre e Contato; substitui o antigo `js/main.js`. |
+| `js/home.js`, `js/projetos.js`, `js/documentos.js` | Início, projetos e documentos; cada página carrega os módulos de que precisa. |
 | `404.html` | Página para endereços que não existem. |
 
-Se mudar o nome ou o cargo, atualize também os metadados do `<head>` em `index.html` e a imagem `assets/img/og.png`, pois prévias de compartilhamento não leem `data.js`.
+Se mudar o nome ou o cargo, atualize também os metadados do `<head>` nas páginas HTML e a imagem `assets/img/og.png`, pois prévias de compartilhamento não leem `data.js`.
 
 ## Publicar
 

@@ -93,7 +93,10 @@
     var cv = dados.curriculo;
     if (!secao || !cv) return;
 
-    var titulo = el("h2", { id: "curriculo-titulo", class: "titulo-secao", "data-reveal": true, text: "Currículo" });
+    // Na página curriculo.html o shell.js já criou o h1 "curriculo-titulo" na abertura.
+    var titulo = document.getElementById("curriculo-titulo")
+      ? null
+      : el("h2", { id: "curriculo-titulo", class: "titulo-secao", text: "Currículo" });
 
     var listaArquivos = (cv.arquivos || []).filter(function (a) { return a && a.arquivo; });
     var arquivos = el("div", { class: "cv-arquivos" + (listaArquivos.length === 1 ? " cv-arquivos--unico" : "") });
@@ -149,7 +152,7 @@
     });
 
     secao.textContent = "";
-    secao.appendChild(titulo);
+    if (titulo) secao.appendChild(titulo);
     secao.appendChild(arquivos);
     secao.appendChild(el("h3", { class: "linha-tempo__titulo-grupo", text: "Trajetória" }));
     secao.appendChild(lista);
@@ -205,7 +208,10 @@
     });
 
     secao.textContent = "";
-    secao.appendChild(el("h2", { id: "certificacoes-titulo", class: "titulo-secao", "data-reveal": true, text: "Certificações" }));
+    // Na página certificacoes.html o shell.js já criou o h1 "certificacoes-titulo" na abertura.
+    if (!document.getElementById("certificacoes-titulo")) {
+      secao.appendChild(el("h2", { id: "certificacoes-titulo", class: "titulo-secao", text: "Certificações" }));
+    }
     secao.appendChild(grade);
   }
 

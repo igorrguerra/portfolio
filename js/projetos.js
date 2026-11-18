@@ -47,7 +47,10 @@
 
   /* ---------- estrutura ---------- */
 
-  const titulo = el("h2", { id: "projetos-titulo", class: "titulo-secao", "data-reveal": true, text: "Projetos" });
+  // Na página projetos.html o shell.js já criou o h1 "projetos-titulo" na abertura da página.
+  const titulo = document.getElementById("projetos-titulo")
+    ? null
+    : el("h2", { id: "projetos-titulo", class: "titulo-secao", text: "Projetos" });
 
   const filtro = el("div", { class: "projetos-filtro", role: "group", "aria-label": "Filtrar projetos por tecnologia" });
   const botoes = [TODOS, ...tecnologias].map((t) =>
@@ -72,7 +75,7 @@
   const vazio = el("div", { class: "projetos-vazio", hidden: true }, vazioTexto, vazioBotao);
 
   const topo = el("div", { class: "projetos-topo" }, filtro, status);
-  secao.replaceChildren(titulo, topo, grade, vazio);
+  secao.replaceChildren(...[titulo, topo, grade, vazio].filter(Boolean));
 
   /* ---------- card ---------- */
 
@@ -134,7 +137,7 @@
 
     const li = el(
       "li",
-      { class: "card-projeto" + (p.destaque ? " card-projeto--destaque" : ""), "data-reveal": true },
+      { class: "card-projeto" + (p.destaque ? " card-projeto--destaque" : "") },
       el("article", { class: "card-projeto__artigo", "aria-labelledby": nomeId }, figura, corpo)
     );
     return { li, p };
@@ -149,14 +152,11 @@
     const destaquesVisiveis = [];
     cards.forEach(({ li, p }) => {
       const mostra = tec === TODOS || (p.tecnologias || []).includes(tec);
-      const estavaOculto = li.hidden;
       li.hidden = !mostra;
       li.classList.remove("card-projeto--largo");
       if (mostra) {
         visiveis++;
         if (p.destaque) destaquesVisiveis.push(li);
-        // card que volta a aparecer não pode ficar preso no estado "antes da revelação"
-        if (estavaOculto) li.classList.add("is-in");
       }
     });
     // Com número ímpar de destaques, o primeiro ocupa a largura toda e os outros ficam em pares.

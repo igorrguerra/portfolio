@@ -1,0 +1,397 @@
+/*
+ * Página Início: hero com o grafo vivo (canvas), apresentação, 3 projetos
+ * em destaque e atalhos. Dono: css/home.css + js/home.js. Veja DESIGN.md.
+ * Nada aqui usa transform/filter em ancestrais do cabeçalho.
+ */
+
+/* ---------- Hero ---------- */
+.hero {
+  --hero-topo: 64px; /* o home.js mede o cabeçalho real */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  min-height: calc(100vh - var(--hero-topo));
+  min-height: calc(100svh - var(--hero-topo));
+  padding: clamp(24px, 5vh, 64px) var(--gutter) clamp(20px, 4vh, 40px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--preto);
+  border-bottom: 1px solid var(--grafite-2);
+}
+
+/* Sem JS (ou antes do canvas): o nome aparece em tipografia gigante. */
+.hero__nome {
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(5rem, 19vw, 22rem);
+  line-height: 0.82;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.hero__nome span {
+  display: inline-block;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y; /* no celular o dedo ainda rola a página na vertical */
+  cursor: crosshair;
+}
+
+/* Com o canvas desenhando, o h1 continua no DOM só para leitores de tela. */
+.hero--viva .hero__nome {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.hero--viva {
+  justify-content: flex-end;
+}
+
+/* ---------- HUD ---------- */
+.hud {
+  display: grid;
+  gap: 10px;
+  max-width: 40ch;
+  font-family: var(--f-texto);
+  font-size: var(--t-1);
+  font-stretch: 75%;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  color: var(--fumaca);
+  pointer-events: none;
+}
+
+.hud__terminal {
+  display: grid;
+  gap: 2px;
+  font-size: var(--t0);
+}
+
+.hud__prompt {
+  color: var(--destaque-texto);
+  font-weight: 600;
+}
+
+.hud__cargo {
+  color: var(--giz);
+  font-weight: 500;
+  min-height: 1.4em;
+}
+
+.hud__cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--destaque);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hud__cursor {
+    animation: hud-pisca 1s steps(1) infinite;
+  }
+}
+
+@keyframes hud-pisca {
+  50% {
+    opacity: 0;
+  }
+}
+
+.hud__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--grafite-2);
+}
+
+.hud__stats div {
+  display: flex;
+  gap: 6px;
+}
+
+.hud__stats dt {
+  color: var(--fumaca);
+}
+
+.hud__stats dd {
+  margin: 0;
+  color: var(--giz);
+  font-weight: 600;
+}
+
+.hud__stats dd[data-hud="algo"] {
+  color: var(--destaque-texto);
+}
+
+/* ---------- Apresentação ---------- */
+.apresenta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px 48px;
+  padding: clamp(56px, 9vw, 128px) var(--gutter) clamp(40px, 6vw, 80px);
+}
+
+.apresenta__resumo {
+  max-width: 30ch;
+  font-family: var(--f-texto);
+  font-size: clamp(1.5rem, 3.4vw, 2.6rem);
+  font-weight: 500;
+  font-stretch: 90%;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.apresenta__meta {
+  color: var(--fumaca);
+  line-height: 1.6;
+}
+
+.apresenta__disponivel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--giz);
+}
+
+.apresenta__disponivel::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--destaque);
+}
+
+.home-link {
+  color: var(--destaque-texto);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.home-link:hover {
+  color: var(--giz);
+}
+
+@media (min-width: 900px) {
+  .apresenta {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: end;
+  }
+
+  .apresenta__resumo {
+    grid-row: span 2;
+  }
+}
+
+/* ---------- Projetos em destaque ---------- */
+.destaques {
+  padding: clamp(24px, 4vw, 56px) var(--gutter) clamp(56px, 8vw, 112px);
+}
+
+.destaques__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-bottom: clamp(24px, 4vw, 48px);
+}
+
+.destaques__titulo {
+  font-family: var(--f-display);
+  font-weight: 850;
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.destaques__lista {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  list-style: none;
+}
+
+@media (min-width: 700px) {
+  .destaques__lista {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .destaques__lista {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--grafite-2);
+  background: var(--grafite);
+  transition: border-color 0.18s ease;
+}
+
+.card:hover,
+.card:focus-within {
+  border-color: var(--destaque-texto);
+}
+
+.card__moldura {
+  overflow: hidden;
+  border-bottom: 1px solid var(--grafite-2);
+}
+
+.card__img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: var(--preto);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card__img {
+    transition: scale 0.5s var(--ease-saida);
+  }
+
+  .card:hover .card__img {
+    scale: 1.04;
+  }
+}
+
+.card__corpo {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px 22px;
+}
+
+.card__meta {
+  color: var(--fumaca);
+  font-size: var(--t-1);
+  font-weight: 500;
+}
+
+.card__nome {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--t3);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.card__nome a {
+  text-decoration: none;
+}
+
+/* O card inteiro é clicável pelo link do nome. */
+.card__nome a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.card__nome a:focus-visible {
+  outline: none;
+}
+
+.card__nome a:focus-visible::after {
+  outline: 3px solid var(--destaque);
+  outline-offset: 3px;
+}
+
+.card__desc {
+  color: var(--fumaca);
+  max-width: var(--max-texto);
+}
+
+.card__pendente {
+  justify-self: start;
+  padding: 0.15em 0.55em 0.2em;
+  border: 1px dashed var(--fumaca);
+  color: var(--giz);
+  font-size: var(--t-1);
+  font-weight: 600;
+}
+
+/* ---------- Atalhos ---------- */
+.atalhos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--grafite-2);
+}
+
+@media (min-width: 700px) {
+  .atalhos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .atalho + .atalho {
+    border-left: 1px solid var(--grafite-2);
+  }
+}
+
+.atalho {
+  display: grid;
+  gap: 8px;
+  padding: clamp(28px, 5vw, 64px) var(--gutter);
+  border-bottom: 1px solid var(--grafite-2);
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.atalho__nome {
+  font-family: var(--f-display);
+  font-weight: 850;
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.atalho__desc {
+  color: var(--fumaca);
+  overflow-wrap: anywhere;
+}
+
+.atalho:hover {
+  background: var(--destaque);
+  color: var(--destaque-tinta);
+}
+
+.atalho:hover .atalho__desc {
+  color: var(--destaque-tinta);
+}
+
+.atalho:focus-visible {
+  outline-offset: -6px;
+}
+
+/* Sem JS a página Início funciona: o aviso vira uma nota simples no fim. */
+body[data-pagina="inicio"] .sem-js {
+  position: static;
+  inset: auto;
+  z-index: auto;
+  padding: 16px var(--gutter);
+  color: var(--fumaca);
+  font-size: var(--t-1);
+}
