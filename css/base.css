@@ -1,7 +1,7 @@
 /*
- * Shell do site: reset, utilitárias compartilhadas, topo, menu, loader,
- * hero, marquee, sobre, contato, rodapé, revelações e cursor.
- * Dono: css/base.css + js/main.js. Veja DESIGN.md.
+ * Shell do site: reset, utilitárias compartilhadas, topo flutuante com indicador
+ * deslizante, loader, hero base, marquee, sobre, contato, rodapé, revelações e cursor.
+ * Camada interativa avançada (canvas, física das letras, Cmd+K, cards 3D) em css/interativo.css.
  */
 
 /* ---------- Reset ---------- */
@@ -12,14 +12,15 @@
 }
 
 html {
-  font-size: 100%; /* 16px no celular */
+  font-size: 100%;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 @media (min-width: 768px) {
   html {
-    font-size: 106.25%; /* 17px no desktop */
+    font-size: 106.25%;
   }
 }
 
@@ -123,7 +124,7 @@ html.sem-rolagem {
   position: fixed;
   top: 12px;
   left: var(--gutter);
-  z-index: 200;
+  z-index: 220;
   padding: 0.75em 1.1em;
   background: var(--destaque);
   color: var(--destaque-tinta);
@@ -140,14 +141,22 @@ html.sem-rolagem {
 }
 
 /* ---------- Utilitárias compartilhadas ---------- */
+:root {
+  --topo-alt: 84px;
+}
+
+main [id],
+#rodape {
+  scroll-margin-top: var(--topo-alt);
+}
+
 .secao {
-  padding-block: clamp(96px, 13vw, 208px);
+  padding-block: clamp(92px, 12vw, 192px);
   padding-inline: var(--gutter);
-  scroll-margin-top: 0;
 }
 
 .titulo-secao {
-  margin: 0 0 clamp(40px, 6vw, 96px);
+  margin: 0 0 clamp(40px, 6vw, 88px);
   font-family: var(--f-display);
   font-weight: 850;
   font-size: var(--t4);
@@ -175,8 +184,6 @@ html.sem-rolagem {
   vertical-align: middle;
 }
 
-/* Dado que o Igor ainda precisa preencher (campo pendente em data.js).
- * O texto do que falta vai no title e numa .nota-pendente visível. */
 .etiqueta-pendente {
   display: inline-flex;
   align-items: center;
@@ -211,12 +218,13 @@ html.sem-rolagem {
 }
 
 .botao {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
   min-height: 48px;
-  padding: 0.8em 1.4em;
+  padding: 0.8em 1.45em;
   border: 2px solid currentColor;
   border-radius: 0;
   background: transparent;
@@ -228,7 +236,12 @@ html.sem-rolagem {
   line-height: 1.2;
   text-decoration: none;
   text-transform: none;
-  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition:
+    background-color 0.2s var(--ease-saida),
+    color 0.2s var(--ease-saida),
+    border-color 0.2s var(--ease-saida),
+    box-shadow 0.25s var(--ease-saida);
+  will-change: transform;
 }
 
 .botao--cheio {
@@ -241,6 +254,7 @@ html.sem-rolagem {
   border-color: var(--giz);
   background: var(--giz);
   color: var(--preto);
+  box-shadow: 0 0 28px rgba(47, 106, 255, 0.45);
 }
 
 .botao--contorno {
@@ -251,6 +265,17 @@ html.sem-rolagem {
 .botao--contorno:hover {
   background: var(--giz);
   color: var(--preto);
+}
+
+.botao--fantasma {
+  border-color: var(--grafite-2);
+  background: rgba(21, 22, 25, 0.72);
+  color: var(--giz);
+}
+
+.botao--fantasma:hover {
+  border-color: var(--destaque-texto);
+  color: var(--destaque-texto);
 }
 
 .sem-js {
@@ -265,56 +290,162 @@ html.sem-rolagem {
   font-size: var(--t1);
 }
 
-/* ---------- Topo fixo com navegação ---------- */
-:root {
-  --topo-alt: 64px; /* o JS mede a altura real do topo */
-}
-
-main [id],
-#rodape {
-  scroll-margin-top: var(--topo-alt);
-}
-
+/* ---------- Navegação Flutuante (Cápsula HUD + Indicador Deslizante) ---------- */
 .topo {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 60;
+  z-index: 90;
+  padding: 12px var(--gutter) 0;
+  pointer-events: none;
+}
+
+.topo__barra {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  min-height: 64px;
-  padding: 0 var(--gutter);
-  border-bottom: 1px solid var(--grafite-2);
+  gap: 16px;
+  max-width: 1320px;
+  min-height: 58px;
+  margin: 0 auto;
+  padding: 6px 10px 6px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  background: rgba(14, 15, 19, 0.76);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.36);
+  pointer-events: auto;
+  overflow: hidden;
+  transition:
+    background-color 0.28s var(--ease-saida),
+    border-color 0.28s var(--ease-saida),
+    box-shadow 0.28s var(--ease-saida),
+    transform 0.28s var(--ease-saida);
 }
 
-/* O fundo com blur fica num pseudo-elemento: backdrop-filter no próprio
- * topo viraria bloco de contenção do painel fixo do celular. */
-.topo::before {
-  content: "";
+.topo.is-rolando .topo__barra {
+  background: rgba(10, 11, 15, 0.9);
+  border-color: rgba(110, 151, 255, 0.26);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(47, 106, 255, 0.08);
+}
+
+/* Barra laser de progresso da rolagem */
+.topo__progresso {
   position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: rgb(10 10 10 / 0.86);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  inset: auto 0 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--destaque), var(--destaque-texto));
+  transform: scaleX(var(--progresso, 0));
+  transform-origin: left;
+  pointer-events: none;
+  opacity: 0.95;
 }
 
 .topo__nome {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   flex: none;
-  padding-block: 10px;
+  padding: 6px 8px 6px 2px;
   font-family: var(--f-display);
-  font-size: var(--t1);
-  font-weight: 800;
+  font-size: 1.45rem;
+  font-weight: 850;
   line-height: 1;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
 }
 
-.topo__lista {
+.topo__ponto {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--destaque);
+  box-shadow: 0 0 10px var(--destaque);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .topo__ponto::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid var(--destaque-texto);
+    opacity: 0;
+    animation: pulso-ponto 2.4s ease-out infinite;
+  }
+}
+
+@keyframes pulso-ponto {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.topo__nav {
+  position: relative;
   display: flex;
-  gap: clamp(8px, 2vw, 32px);
+  align-items: center;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.topo__indicador,
+.topo__fantasma {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.topo__indicador {
+  z-index: 0;
+  background: var(--destaque);
+  box-shadow: 0 2px 16px rgba(47, 106, 255, 0.5);
+  transition:
+    transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+
+.topo__indicador.is-ativo {
+  opacity: 1;
+}
+
+.topo__fantasma {
+  z-index: 0;
+  background: rgba(255, 255, 255, 0.07);
+  transition:
+    transform 0.24s var(--ease-saida),
+    width 0.24s var(--ease-saida),
+    opacity 0.18s ease;
+}
+
+.topo__fantasma.is-visivel {
+  opacity: 1;
+}
+
+.topo__lista {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
   list-style: none;
 }
 
@@ -322,55 +453,111 @@ main [id],
   position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: 64px;
-  padding-inline: 4px;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
   color: var(--fumaca);
-  font-size: var(--t0);
+  font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: color 0.18s ease;
+  transition: color 0.2s ease;
 }
 
-.topo__link::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 -1px;
-  height: 3px;
-  background: var(--destaque);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s var(--ease-saida);
-}
-
-.topo__link:hover,
-.topo__link[aria-current="true"] {
+.topo__link:hover {
   color: var(--giz);
 }
 
-.topo__link[aria-current="true"]::after {
-  transform: scaleX(1);
+.topo__link[aria-current="true"] {
+  color: var(--destaque-tinta);
 }
 
 .topo__link:focus-visible {
-  outline-offset: -3px;
+  outline-offset: 2px;
+}
+
+.topo__contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding-inline: 0.35em;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--giz);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.topo__link[aria-current="true"] .topo__contador {
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--destaque-tinta);
+}
+
+.topo__direita {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.topo__cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px 0 14px;
+  border: 1px solid var(--grafite-2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--giz);
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.topo__cmd:hover {
+  border-color: var(--destaque-texto);
+  background: rgba(47, 106, 255, 0.14);
+}
+
+.topo__kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--destaque-texto);
+  font-family: var(--f-texto);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .topo__menu {
   display: none;
   align-items: center;
-  gap: 0.6em;
-  min-height: 44px;
-  padding: 0 0 0 12px;
-  border: 0;
-  background: none;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--grafite-2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
   color: var(--giz);
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .topo__icone {
   position: relative;
-  width: 18px;
+  width: 16px;
   height: 2px;
   background: currentColor;
   transition: background-color 0.2s ease;
@@ -388,11 +575,17 @@ main [id],
 }
 
 .topo__icone::before {
-  transform: translateY(-6px);
+  transform: translateY(-5px);
 }
 
 .topo__icone::after {
-  transform: translateY(6px);
+  transform: translateY(5px);
+}
+
+.topo__menu[aria-expanded="true"] {
+  border-color: var(--destaque);
+  background: var(--destaque);
+  color: var(--destaque-tinta);
 }
 
 .topo__menu[aria-expanded="true"] .topo__icone {
@@ -407,80 +600,113 @@ main [id],
   transform: rotate(-45deg);
 }
 
-/* Celular e tablet estreito: botão Menu e painel simples. */
-@media (max-width: 899px) {
+/* Painel mobile (fora de .topo__barra para nunca sofrer contenção de backdrop-filter) */
+.topo__painel {
+  display: none;
+}
+
+@media (max-width: 1039px) {
+  .topo {
+    padding: 10px var(--gutter) 0;
+  }
+
+  .topo__barra {
+    padding: 6px 8px 6px 16px;
+  }
+
+  .topo__nav {
+    display: none;
+  }
+
+  .topo__cmd-rotulo {
+    display: none;
+  }
+
+  .topo__cmd {
+    padding-inline: 10px;
+  }
+
   .topo__menu {
     display: inline-flex;
   }
 
-  .topo__nav {
+  .topo__painel.is-aberto {
     position: fixed;
-    inset: var(--topo-alt) 0 0;
-    display: none;
-    overflow-y: auto;
-    padding: 8px var(--gutter) 32px;
-    background: var(--preto);
-  }
-
-  .topo__nav.is-aberto {
-    display: block;
-  }
-
-  .topo__lista {
+    inset: 0;
+    z-index: 1;
+    display: flex;
     flex-direction: column;
-    gap: 0;
+    justify-content: space-between;
+    padding: calc(var(--topo-alt) + 12px) var(--gutter) 28px;
+    background: rgba(10, 10, 12, 0.96);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    overflow-y: auto;
+    pointer-events: auto;
   }
 
-  .topo__lista li {
+  .topo__painel-lista {
+    list-style: none;
+    display: grid;
+    gap: 2px;
+  }
+
+  .topo__painel-lista li {
     border-bottom: 1px solid var(--grafite-2);
   }
 
-  .topo__link {
+  .topo__painel-link {
     display: flex;
-    width: 100%;
-    min-height: 0;
-    padding: 14px 0 10px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 4px 12px;
     color: var(--giz);
     font-family: var(--f-display);
-    font-size: clamp(2.25rem, 11vw, 3.5rem);
-    font-weight: 800;
-    line-height: 1;
+    font-size: clamp(2.2rem, 10.5vw, 3.4rem);
+    font-weight: 850;
+    line-height: 0.95;
     text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.18s ease, padding-left 0.22s var(--ease-saida);
   }
 
-  .topo__link::after {
-    inset: auto auto 10px 0;
-    width: 0.6em;
-    height: 4px;
-    transform: none;
-    opacity: 0;
+  .topo__painel-link:hover,
+  .topo__painel-link[aria-current="true"] {
+    color: var(--destaque-texto);
+    padding-left: 12px;
   }
 
-  .topo__link[aria-current="true"]::after {
-    opacity: 1;
+  .topo__painel-link[aria-current="true"]::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--destaque);
+    box-shadow: 0 0 12px var(--destaque);
   }
 
-  .topo__link[aria-current="true"] {
-    padding-bottom: 22px;
+  .topo__painel-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 24px;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .topo__nav.is-aberto {
-    animation: painel 0.22s var(--ease-saida);
+  .topo__painel.is-aberto {
+    animation: painel-entra 0.24s var(--ease-saida);
   }
 }
 
-@keyframes painel {
+@keyframes painel-entra {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-10px);
   }
 }
 
-/* ---------- Loader ---------- */
-/* Sem JS o loader nunca aparece. Com JS ele cobre a tela e tem um
- * desligamento só de CSS em 2.4s para o caso de o script travar. */
+/* ---------- Loader Rápido com Varredura Laser ---------- */
 .loader {
   display: none;
 }
@@ -488,39 +714,46 @@ main [id],
 .js .loader {
   position: fixed;
   inset: 0;
-  z-index: 150;
-  display: block;
+  z-index: 160;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--preto);
   clip-path: inset(0 0 0 0);
-  animation: loader-seguranca 0s linear 2.4s forwards;
+  animation: loader-seguranca 0s linear 1.8s forwards;
 }
 
 @keyframes loader-seguranca {
   to {
     visibility: hidden;
+    pointer-events: none;
   }
 }
 
-.loader__nome {
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 0;
-  color: var(--destaque-texto);
-  font-family: var(--f-display);
-  font-weight: 100;
-  line-height: 0.82;
-  text-transform: uppercase;
-  white-space: nowrap;
+.loader__barra {
+  position: relative;
+  width: min(260px, 64vw);
+  height: 2px;
+  background: var(--grafite-2);
+  overflow: hidden;
 }
 
-.loader__nome span {
-  display: block;
+.loader__laser {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--destaque), var(--destaque-texto), #ffffff);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.36s var(--ease-saida);
+}
+
+.loader.is-carregando .loader__laser {
+  transform: scaleX(1);
 }
 
 .js .loader.is-saindo {
   clip-path: inset(0 0 100% 0);
-  transition: clip-path 0.42s var(--ease-batida);
+  transition: clip-path 0.38s var(--ease-batida);
 }
 
 .js .loader.is-fim {
@@ -538,12 +771,29 @@ main [id],
   position: relative;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100vw;
   min-height: 100svh;
-  padding: min(clamp(96px, 9vw, 128px), max(88px, 13svh)) var(--gutter) clamp(20px, 3svh, 40px);
+  padding: calc(var(--topo-alt) + clamp(10px, 2svh, 24px)) var(--gutter) clamp(20px, 3.2svh, 40px);
+  overflow: hidden;
+  isolation: isolate;
+  touch-action: pan-y;
+}
+
+.hero__conteudo {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
 }
 
 .hero__nome {
-  margin: 0;
+  margin: auto 0;
+  padding-block: clamp(8px, 1.5svh, 20px);
   font-family: var(--f-display);
   font-size: var(--nome-tam, var(--t-mega));
   font-weight: 900;
@@ -551,6 +801,7 @@ main [id],
   letter-spacing: 0;
   text-transform: uppercase;
   overflow-wrap: normal;
+  user-select: none;
 }
 
 .hero__linha {
@@ -559,9 +810,19 @@ main [id],
   white-space: nowrap;
 }
 
-/* Sem JS para medir, o clamp é calibrado para "GUERRA" caber em 375px. */
+.hero__letra {
+  display: inline-block;
+  will-change: transform, font-weight;
+}
+
+/* Medição exata sem interferência de transforms ativos */
+.hero__nome.is-medindo .hero__letra {
+  font-weight: 900 !important;
+  transform: none !important;
+}
+
 .hero__nome:not(.is-medido) {
-  font-size: min(var(--t-mega), 30vw);
+  font-size: min(var(--t-mega), 28vw);
 }
 
 .hero__info {
@@ -569,45 +830,65 @@ main [id],
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: var(--gutter);
   row-gap: 20px;
-  margin-top: auto;
-  padding-top: clamp(20px, 4svh, 56px);
+  align-items: end;
+  padding-top: clamp(14px, 2.5svh, 36px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero__bloco-cargo {
+  grid-column: 1 / span 6;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
 }
 
 .hero__cargo {
-  grid-column: 1 / span 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
   font-size: var(--t1);
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.2;
 }
 
-.hero__local {
-  display: block;
-  margin-top: 0.35em;
+.hero__resumo {
+  max-width: 48ch;
   color: var(--fumaca);
   font-size: var(--t0);
-  font-weight: 400;
+  line-height: 1.45;
 }
 
-.hero__texto {
+.hero__bloco-acoes {
   grid-column: 7 / -1;
-  grid-row: 1 / span 2;
+  min-width: 0;
   display: grid;
-  gap: 18px;
-  align-content: start;
+  justify-items: end;
+  gap: 10px;
 }
 
-.hero__resumo {
-  max-width: 34ch;
-  font-size: var(--t1);
-  line-height: 1.35;
+.hero__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .hero__acoes .botao {
+    min-height: 44px;
+    padding: 0.65em 1.05em;
+    font-size: 0.92rem;
+  }
 }
 
 .status {
   display: inline-flex;
   align-items: center;
-  gap: 0.6em;
+  gap: 0.55em;
   color: var(--giz);
-  font-size: var(--t0);
+  font-size: 0.92rem;
+  font-weight: 500;
 }
 
 .status::before {
@@ -617,87 +898,23 @@ main [id],
   height: 0.55em;
   border-radius: 50%;
   background: var(--destaque);
+  box-shadow: 0 0 10px var(--destaque);
 }
 
-.hero__rolagem {
-  grid-column: 1 / span 5;
-  grid-row: 2;
-  display: inline-flex;
-  align-items: center;
-  align-self: end;
-  justify-self: start;
-  gap: 16px;
-  padding-block: 10px;
-  color: var(--fumaca);
-  text-decoration: none;
-}
-
-.hero__rolagem:hover {
-  color: var(--giz);
-}
-
-.hero__linha-rolagem {
-  position: relative;
-  width: 72px;
-  height: 2px;
-  overflow: hidden;
-  background: var(--grafite-2);
-}
-
-.hero__linha-rolagem::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--giz);
-  transform: scaleX(0);
-  transform-origin: left;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero__linha-rolagem::after {
-    animation: rolagem 2.2s var(--ease-batida) infinite;
-  }
-
-  .hero__nome.is-morph {
-    will-change: transform;
-  }
-}
-
-@keyframes rolagem {
-  0% {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-  45% {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-  55% {
-    transform: scaleX(1);
-    transform-origin: right;
-  }
-  100% {
-    transform: scaleX(0);
-    transform-origin: right;
-  }
-}
-
-@media (max-width: 767px) {
-  .hero__cargo,
-  .hero__texto,
-  .hero__rolagem {
+@media (max-width: 899px) {
+  .hero__bloco-cargo,
+  .hero__bloco-acoes {
     grid-column: 1 / -1;
-    grid-row: auto;
+    justify-items: start;
   }
 
-  .hero__info {
-    row-gap: 16px;
+  .hero__acoes {
+    justify-content: flex-start;
   }
 }
 
 /* ---------- Títulos display: sem hifenização, quebra só em espaços ---------- */
-/* O JS envolve palavras com hífen (ex.: FRONT-END) em .sem-quebra. */
-:where(h1, h2, h3, h4, .titulo-secao, .hero__nome, .rodape__gigante, .menu__link, [class*="__nome"]) {
+:where(h1, h2, h3, h4, .titulo-secao, .hero__nome, .rodape__gigante, [class*="__nome"]) {
   hyphens: none;
   -webkit-hyphens: none;
 }
@@ -708,11 +925,12 @@ main [id],
 
 /* ---------- Marquee ---------- */
 .marquee {
+  position: relative;
   overflow: hidden;
   background: var(--destaque);
   color: var(--destaque-tinta);
   font-family: var(--f-display);
-  font-size: clamp(2.25rem, 6vw, 5.5rem);
+  font-size: clamp(2.25rem, 5.6vw, 5rem);
   font-weight: 850;
   line-height: 1;
   text-transform: uppercase;
@@ -722,6 +940,7 @@ main [id],
   display: flex;
   width: max-content;
   padding-block: 0.22em 0.18em;
+  will-change: transform;
 }
 
 .marquee__grupo {
@@ -744,16 +963,13 @@ main [id],
   height: 0.62em;
   margin-inline: 0.42em;
   background: currentColor;
-  transform: skewX(-18deg);
+  transform: skewX(var(--marquee-skew, -18deg));
+  transition: transform 0.2s ease;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .marquee__trilho {
+  .marquee:not(.is-js-marquee) .marquee__trilho {
     animation: marquee var(--marquee-dur, 40s) linear infinite;
-  }
-
-  .marquee:hover .marquee__trilho {
-    animation-play-state: paused;
   }
 }
 
@@ -962,16 +1178,13 @@ main [id],
 }
 
 /* ---------- Revelações ---------- */
-/* Só esconde quando o JS está ativo e o movimento é permitido.
- * O estado oculto usa opacity (o IntersectionObserver do Chrome ignora alvos
- * recortados por clip-path); a máscara de baixo para cima roda ao ganhar .is-in. */
 @media (prefers-reduced-motion: no-preference) {
   .js [data-reveal]:not(.is-in) {
     opacity: 0;
   }
 
   .js [data-reveal].is-in {
-    animation: revelar 0.75s var(--ease-saida) backwards; /* sem clip depois */
+    animation: revelar 0.72s var(--ease-saida) backwards;
   }
 }
 
@@ -996,7 +1209,7 @@ main [id],
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 140;
+    z-index: 200;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1012,12 +1225,11 @@ main [id],
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
-    scale: 0.22;
+    scale: 0.2;
     opacity: 0;
-    transition: scale 0.3s var(--ease-saida), opacity 0.2s ease, background-color 0.2s ease;
+    transition: scale 0.28s var(--ease-saida), opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
   }
 
-  /* Pequeno: ponto azul cheio. Sobre links: anel. Com texto: azul cheio. */
   .cursor-on .cursor:not(.is-grande) {
     background: var(--destaque);
   }
@@ -1032,11 +1244,11 @@ main [id],
   }
 
   .cursor-on .cursor.is-grande {
-    scale: 0.75;
+    scale: 0.72;
   }
 
   .cursor-on .cursor.is-texto {
-    scale: 1.25;
+    scale: 1.22;
   }
 
   .cursor__texto {
@@ -1049,7 +1261,6 @@ main [id],
     opacity: 1;
   }
 
-  /* O cursor do sistema só some onde o customizado aparece. */
   .cursor-on,
   .cursor-on a,
   .cursor-on button,

@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Igor Romero, dev full stack</title>
-  <meta name="description" content="Portfólio do Igor: projetos, currículo e certificações." />
+  <title>Igor Romero — Desenvolvedor Full Stack</title>
+  <meta name="description" content="Portfólio de Igor Romero: produtos web full stack, interfaces interativas, currículo e certificações." />
   <meta name="theme-color" content="#0a0a0a" />
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
-  <meta property="og:title" content="Igor Romero, dev full stack" />
-  <meta property="og:description" content="Portfólio do Igor: projetos, currículo e certificações." />
+  <meta property="og:title" content="Igor Romero — Desenvolvedor Full Stack" />
+  <meta property="og:description" content="Portfólio de Igor Romero: produtos web full stack, interfaces interativas, currículo e certificações." />
   <meta property="og:image" content="https://igorrguerra.github.io/portfolio/assets/img/og.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,10 +18,12 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/projetos.css" />
   <link rel="stylesheet" href="css/documentos.css" />
+  <link rel="stylesheet" href="css/interativo.css" />
   <script defer src="data.js"></script>
   <script defer src="js/projetos.js"></script>
   <script defer src="js/documentos.js"></script>
   <script defer src="js/main.js"></script>
+  <script defer src="js/interativo.js"></script>
 </head>
 <body>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -30,7 +32,6 @@
   <div class="loader" aria-hidden="true"></div>
   <div class="cursor" aria-hidden="true"></div>
   <header class="topo" id="topo"></header>
-  <nav class="menu" id="menu" aria-label="Seções" hidden></nav>
 
   <main id="conteudo">
     <section id="hero" class="hero" aria-labelledby="hero-nome"></section>
@@ -52,6 +53,9 @@
 
   <!-- documentos.js: visualizador de PDF e imagem -->
   <dialog class="visualizador" id="visualizador" aria-labelledby="visualizador-titulo"></dialog>
+
+  <!-- interativo.js: paleta rápida de comandos (Cmd+K / Ctrl+K) -->
+  <dialog class="comando" id="comando" aria-labelledby="comando-titulo"></dialog>
 
   <noscript><p class="sem-js">Este site precisa de JavaScript para mostrar o conteúdo.</p></noscript>
 </body>

@@ -1,0 +1,351 @@
+/*
+ * Camada interativa: Canvas de física do Hero, HUD de simulação,
+ * letras cinéticas, paleta de comandos (Cmd+K) e notificações rápidas.
+ */
+
+/* ---------- Hero Canvas + Vinheta ---------- */
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero__vinheta {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(10, 10, 10, 0.12) 0%, rgba(10, 10, 10, 0.58) 100%),
+    linear-gradient(180deg, rgba(10, 10, 10, 0.45) 0%, transparent 22%, transparent 78%, rgba(10, 10, 10, 0.85) 100%);
+}
+
+/* ---------- HUD Interativo do Hero ---------- */
+.hero__hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding-bottom: clamp(10px, 1.8svh, 20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero__hud-esq {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.hero__local-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--fumaca);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.hero__hud-dir {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero__modos {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(15, 16, 20, 0.78);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.hero__modo {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fumaca);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero__modo:hover {
+  color: var(--giz);
+}
+
+.hero__modo[aria-pressed="true"] {
+  background: var(--destaque);
+  color: var(--destaque-tinta);
+  box-shadow: 0 0 14px rgba(47, 106, 255, 0.5);
+}
+
+.hero__telemetria {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid rgba(110, 151, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(47, 106, 255, 0.08);
+  color: var(--destaque-texto);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 639px) {
+  .hero__telemetria {
+    display: none;
+  }
+
+  .hero__hud {
+    gap: 10px;
+  }
+}
+
+/* ---------- Tipografia Cinética + Especialidade ---------- */
+.hero__letra {
+  position: relative;
+  transition: color 0.14s ease;
+}
+
+.hero__letra.is-energizada {
+  color: #ffffff;
+  text-shadow:
+    0 0 28px rgba(47, 106, 255, 0.75),
+    0 0 8px rgba(110, 151, 255, 0.65);
+}
+
+.hero__letra.is-decodificando {
+  color: var(--destaque-texto);
+}
+
+.hero__especialidade {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border: 1px solid rgba(110, 151, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(47, 106, 255, 0.11);
+  color: var(--destaque-texto);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.hero__especialidade:hover {
+  border-color: var(--destaque-texto);
+  background: rgba(47, 106, 255, 0.2);
+}
+
+.hero__dica {
+  color: var(--fumaca);
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: right;
+}
+
+@media (max-width: 899px) {
+  .hero__dica {
+    text-align: left;
+  }
+}
+
+/* ---------- Paleta de Comandos (Cmd+K / Ctrl+K) ---------- */
+.comando {
+  width: min(580px, calc(100vw - 24px));
+  max-height: min(520px, 82svh);
+  margin: clamp(56px, 12svh, 120px) auto auto;
+  padding: 0;
+  border: 1px solid rgba(110, 151, 255, 0.3);
+  border-radius: 16px;
+  background: rgba(17, 18, 23, 0.96);
+  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(22px);
+  color: var(--giz);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.78), 0 0 0 1px rgba(47, 106, 255, 0.12);
+  overflow: hidden;
+}
+
+.comando[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.comando::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .comando[open] {
+    animation: comando-entra 0.2s var(--ease-saida) both;
+  }
+}
+
+@keyframes comando-entra {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+.comando__topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--grafite-2);
+}
+
+.comando__campo {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--giz);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.comando__campo::placeholder {
+  color: var(--fumaca);
+}
+
+.comando__campo:focus {
+  outline: none;
+}
+
+.comando__esc {
+  padding: 4px 8px;
+  border: 1px solid var(--grafite-2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fumaca);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.comando__esc:hover {
+  color: var(--giz);
+  border-color: var(--fumaca);
+}
+
+.comando__lista {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
+  list-style: none;
+}
+
+.comando__grupo {
+  padding: 8px 10px 4px;
+  color: var(--fumaca);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comando__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--giz);
+  font-size: 0.94rem;
+  font-weight: 500;
+  text-align: left;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.comando__item:hover,
+.comando__item.is-selecionado {
+  background: var(--destaque);
+  color: var(--destaque-tinta);
+}
+
+.comando__atalho {
+  color: var(--fumaca);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.comando__item:hover .comando__atalho,
+.comando__item.is-selecionado .comando__atalho {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.comando__vazio {
+  padding: 28px 16px;
+  color: var(--fumaca);
+  font-size: 0.94rem;
+  text-align: center;
+}
+
+.comando__rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--grafite-2);
+  background: rgba(10, 10, 12, 0.55);
+  color: var(--fumaca);
+  font-size: 0.76rem;
+}
+
+/* ---------- Toast de Feedback ---------- */
+.toast-acao {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 240;
+  padding: 10px 18px;
+  border: 1px solid rgba(110, 151, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(15, 16, 22, 0.94);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--giz);
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s var(--ease-saida), opacity 0.25s ease;
+}
+
+.toast-acao.is-visivel {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}

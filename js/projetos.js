@@ -1,5 +1,5 @@
 /*
- * Seção de projetos: filtro por tecnologia + grade de cards (DESIGN.md, Revisão 2).
+ * Seção de projetos: filtro por tecnologia + grade de cards interativos.
  * Conteúdo vem de window.PORTFOLIO.projetos.
  */
 (function () {
@@ -41,9 +41,15 @@
     return n;
   }
 
-  const plural = (n) => (n === 1 ? "1 projeto" : `${n} projetos`);
+  const plural = (n) => (n === 1 ? "1 projeto selecionado" : `${n} projetos selecionados`);
   const slug = (s) =>
-    "projeto-" + String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    "projeto-" +
+    String(s)
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
 
   /* ---------- estrutura ---------- */
 
@@ -51,13 +57,17 @@
 
   const filtro = el("div", { class: "projetos-filtro", role: "group", "aria-label": "Filtrar projetos por tecnologia" });
   const botoes = [TODOS, ...tecnologias].map((t) =>
-    el("button", {
-      type: "button",
-      class: "projetos-filtro__botao",
-      "data-tec": t,
-      "aria-pressed": t === TODOS ? "true" : "false",
-      text: t === TODOS ? "Todos" : t,
-    })
+    el(
+      "button",
+      {
+        type: "button",
+        class: "projetos-filtro__botao",
+        "data-tec": t,
+        "aria-pressed": t === TODOS ? "true" : "false",
+      },
+      t === TODOS ? "Todos" : t,
+      t !== TODOS ? el("span", { class: "projetos-filtro__qtd", text: String(contagem.get(t) || 0) }) : null
+    )
   );
   filtro.append(...botoes);
 
@@ -79,7 +89,15 @@
   function link(href, texto, classe, nomeId) {
     return el(
       "a",
-      { href, class: "botao " + classe, target: "_blank", rel: "noopener", "data-cursor": "Ver", "aria-describedby": nomeId },
+      {
+        href,
+        class: "botao " + classe,
+        target: "_blank",
+        rel: "noopener",
+        "data-cursor": "Ver",
+        "data-magnetico": "true",
+        "aria-describedby": nomeId,
+      },
       texto
     );
   }
@@ -92,7 +110,14 @@
         ? el(
             "figure",
             { class: "card-projeto__imagem" },
-            el("img", { src: p.imagem.src, alt: p.imagem.alt || "", width: "1600", height: "1000", loading: "lazy", decoding: "async" })
+            el("img", {
+              src: p.imagem.src,
+              alt: p.imagem.alt || "",
+              width: "1600",
+              height: "1000",
+              loading: "lazy",
+              decoding: "async",
+            })
           )
         : el("div", { class: "card-projeto__imagem card-projeto__imagem--vazia", "aria-hidden": "true" });
 
@@ -109,9 +134,15 @@
 
     const nome = el("h3", { class: "card-projeto__nome", id: nomeId }, p.nome);
     const desc = p.descricao ? el("p", { class: "card-projeto__desc" }, p.descricao) : null;
+
     const tecs = (p.tecnologias || []).length
-      ? el("p", { class: "card-projeto__tec" }, el("span", { class: "card-projeto__oculto", text: "Tecnologias: " }), p.tecnologias.join(", "))
+      ? el(
+          "ul",
+          { class: "card-projeto__tags", "aria-label": "Tecnologias utilizadas" },
+          p.tecnologias.map((t) => el("li", { class: "card-projeto__tag", text: t }))
+        )
       : null;
+
     const pendente = p.pendente ? el("p", { class: "card-projeto__pendente" }, p.pendente) : null;
 
     const acoes = el("div", { class: "card-projeto__acoes" });
@@ -155,20 +186,17 @@
       if (mostra) {
         visiveis++;
         if (p.destaque) destaquesVisiveis.push(li);
-        // card que volta a aparecer não pode ficar preso no estado "antes da revelação"
         if (estavaOculto) li.classList.add("is-in");
       }
     });
-    // Com número ímpar de destaques, o primeiro ocupa a largura toda e os outros ficam em pares.
     if (destaquesVisiveis.length % 2 === 1) destaquesVisiveis[0].classList.add("card-projeto--largo");
 
-    // Sem card sobrando sozinho na última fileira dos comuns.
     const comuns = cards.filter(({ li, p }) => !li.hidden && !p.destaque).map(({ li }) => li);
     comuns.forEach((li) => li.classList.remove("card-projeto--metade", "card-projeto--fim-tablet"));
-    const resto = comuns.length % 3; // desktop: 3 por fileira
+    const resto = comuns.length % 3;
     const metades = resto === 1 && comuns.length >= 4 ? 4 : resto === 2 ? 2 : resto === 1 ? 1 : 0;
     comuns.slice(comuns.length - metades).forEach((li) => li.classList.add("card-projeto--metade"));
-    if (comuns.length % 2 === 1) comuns[comuns.length - 1].classList.add("card-projeto--fim-tablet"); // tablet: 2 por fileira
+    if (comuns.length % 2 === 1) comuns[comuns.length - 1].classList.add("card-projeto--fim-tablet");
 
     status.textContent = tec === TODOS ? plural(visiveis) : `${plural(visiveis)} com ${tec}`;
 

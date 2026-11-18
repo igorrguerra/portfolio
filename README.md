@@ -133,8 +133,8 @@ Para atualizar conteúdo, basta editar `data.js` e colocar os documentos e image
 | --- | --- |
 | `index.html` | Estrutura, fontes e carregamento dos scripts. |
 | `css/tokens.css` | Cores, fontes e medidas compartilhadas. |
-| `css/base.css`, `css/projetos.css`, `css/documentos.css` | Layout e aparência. |
-| `js/main.js`, `js/projetos.js`, `js/documentos.js` | Renderização e interações. |
+| `css/base.css`, `css/projetos.css`, `css/documentos.css`, `css/interativo.css` | Layout, navegação flutuante, animações e paleta de comandos. |
+| `js/main.js`, `js/projetos.js`, `js/documentos.js`, `js/interativo.js` | Renderização, simulações em Canvas 2D, física tipográfica e interações. |
 | `404.html` | Página para endereços que não existem. |
 
 Se mudar o nome ou o cargo, atualize também os metadados do `<head>` em `index.html` e a imagem `assets/img/og.png`, pois prévias de compartilhamento não leem `data.js`.

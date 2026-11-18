@@ -1,6 +1,6 @@
 /*
- * Shell do portfólio: topo com navegação, loader, hero, marquee, sobre, contato,
- * rodapé, revelações e cursor. Último script defer da página.
+ * Shell do portfólio: navegação flutuante com indicador deslizante, loader laser,
+ * hero estrutural, marquee, sobre, contato, rodapé, revelações e cursor.
  * Todo o conteúdo vem de window.PORTFOLIO (data.js).
  */
 (function () {
@@ -10,18 +10,21 @@
   var pessoa = DADOS.pessoa || {};
   var sobre = DADOS.sobre || {};
   var contato = DADOS.contato || {};
+  var listaProjetos = Array.isArray(DADOS.projetos) ? DADOS.projetos : [];
 
   var raiz = document.documentElement;
   raiz.classList.add("js");
 
   var mqMovimento = window.matchMedia("(prefers-reduced-motion: reduce)");
   var mqCursor = window.matchMedia("(hover: hover) and (pointer: fine)");
+  var mqMobile = window.matchMedia("(max-width: 1039px)");
+  var ehMac = /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent || "");
+
   function semMovimento() {
     return mqMovimento.matches;
   }
 
   /* ---------- Utilitários ---------- */
-  // Cria elementos sem innerHTML: texto sempre via textContent.
   function el(tag, attrs, filhos) {
     var no = document.createElement(tag);
     if (attrs) {
@@ -44,7 +47,6 @@
     return el("span", { classe: "etiqueta-exemplo", texto: "Exemplo" });
   }
 
-  // Etiqueta "A confirmar" + linha pequena com o que falta (campo pendente).
   function pendente(texto) {
     if (!texto) return null;
     return el("div", { classe: "pendente" }, [
@@ -69,68 +71,276 @@
     return parseFloat(valor) || 0;
   }
 
-  /* ---------- Topo com navegação ---------- */
-  // Desktop: links sempre visíveis, seção atual marcada (aria-current).
-  // Abaixo de 900px: botão "Menu" abre um painel simples com os mesmos links.
+  function copiarTexto(texto) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
+    return new Promise(function (ok, falha) {
+      var area = el("textarea", { readonly: true, style: "position:fixed;top:0;left:-9999px" });
+      area.value = texto;
+      document.body.appendChild(area);
+      area.select();
+      var deu = false;
+      try {
+        deu = document.execCommand("copy");
+      } catch (err) {
+        deu = false;
+      }
+      area.remove();
+      if (deu) ok();
+      else falha(new Error("cópia indisponível"));
+    });
+  }
+  window.copiarTextoPortfolio = copiarTexto;
+
+  /* ---------- Navegação com Indicador Deslizante + Progresso ---------- */
   var topo = document.getElementById("topo");
   var SECOES = [
+    { id: "hero", rotulo: "Início" },
     { id: "sobre", rotulo: "Sobre" },
-    { id: "projetos", rotulo: "Projetos" },
+    { id: "projetos", rotulo: "Projetos", contador: listaProjetos.length || null },
     { id: "curriculo", rotulo: "Currículo" },
     { id: "certificacoes", rotulo: "Certificações" },
     { id: "contato", rotulo: "Contato" },
   ];
-  var mqPainel = window.matchMedia("(max-width: 899px)");
+
+  var barraTopo = null;
+  var navDesktop = null;
+  var indicador = null;
+  var fantasma = null;
   var botaoMenu = null;
-  var nav = null;
+  var painelMobile = null;
+  var linksDesktop = {};
+  var linksMobile = {};
   var painelAberto = false;
+  var secaoAtual = "hero";
+  var secaoTravada = null;
+  var timerTrava = 0;
+  var scrollRaf = false;
 
   function montarTopo() {
     if (!topo) return;
-    var lista = el("ul", { classe: "topo__lista" });
+
+    var listaDesktop = el("ul", { classe: "topo__lista" });
+    var listaMobile = el("ul", { classe: "topo__painel-lista" });
+
     SECOES.forEach(function (s) {
       if (!document.getElementById(s.id)) return;
-      lista.appendChild(el("li", null, [el("a", { href: "#" + s.id, classe: "topo__link", "data-secao": s.id }, [s.rotulo])]));
-    });
-    nav = el("nav", { id: "navegacao", classe: "topo__nav", "aria-label": "Seções" }, [lista]);
-    botaoMenu = el("button", { type: "button", classe: "topo__menu", "aria-expanded": "false", "aria-controls": "navegacao" }, [
-      el("span", { classe: "topo__menu-texto", texto: "Menu" }),
-      el("span", { classe: "topo__icone", "aria-hidden": "true" }),
-    ]);
-    topo.replaceChildren(el("a", { href: "#hero", classe: "topo__nome" }, [nomeCompleto()]), nav, botaoMenu);
 
+      var filhosLink = [el("span", { texto: s.rotulo })];
+      if (s.contador) {
+        filhosLink.push(el("span", { classe: "topo__contador", texto: String(s.contador) }));
+      }
+      var aDesk = el("a", { href: "#" + s.id, classe: "topo__link", "data-secao": s.id }, filhosLink);
+      linksDesktop[s.id] = aDesk;
+      listaDesktop.appendChild(el("li", null, [aDesk]));
+
+      var aMob = el("a", { href: "#" + s.id, classe: "topo__painel-link", "data-secao": s.id }, [
+        el("span", { texto: s.rotulo }),
+      ]);
+      linksMobile[s.id] = aMob;
+      listaMobile.appendChild(el("li", null, [aMob]));
+    });
+
+    fantasma = el("span", { classe: "topo__fantasma", "aria-hidden": "true" });
+    indicador = el("span", { classe: "topo__indicador", "aria-hidden": "true" });
+    navDesktop = el("nav", { id: "navegacao-desktop", classe: "topo__nav", "aria-label": "Seções principais" }, [
+      fantasma,
+      indicador,
+      listaDesktop,
+    ]);
+
+    var botaoCmd = el(
+      "button",
+      {
+        type: "button",
+        classe: "topo__cmd",
+        "data-magnetico": "true",
+        "aria-label": "Abrir menu rápido de comandos",
+        title: "Menu rápido (" + (ehMac ? "⌘K" : "Ctrl+K") + ")",
+      },
+      [
+        el("span", { classe: "topo__cmd-rotulo", texto: "Comandos" }),
+        el("kbd", { classe: "topo__kbd", texto: ehMac ? "⌘K" : "Ctrl K" }),
+      ]
+    );
+    botaoCmd.addEventListener("click", function () {
+      if (painelAberto) fecharPainel(false);
+      if (typeof window.abrirComandos === "function") window.abrirComandos(botaoCmd);
+    });
+
+    botaoMenu = el(
+      "button",
+      {
+        type: "button",
+        classe: "topo__menu",
+        "aria-expanded": "false",
+        "aria-controls": "navegacao-mobile",
+      },
+      [
+        el("span", { classe: "topo__menu-texto", texto: "Menu" }),
+        el("span", { classe: "topo__icone", "aria-hidden": "true" }),
+      ]
+    );
+
+    var marca = el("a", { href: "#hero", classe: "topo__nome" }, [
+      pessoa.disponivel ? el("span", { classe: "topo__ponto", "aria-hidden": "true" }) : null,
+      el("span", { texto: nomeCompleto() }),
+    ]);
+
+    var progresso = el("span", { classe: "topo__progresso", "aria-hidden": "true" });
+    barraTopo = el("div", { classe: "topo__barra" }, [
+      marca,
+      navDesktop,
+      el("div", { classe: "topo__direita" }, [botaoCmd, botaoMenu]),
+      progresso,
+    ]);
+
+    // Ações rápidas dentro do menu mobile
+    var acoesMobile = el("div", { classe: "topo__painel-rodape" });
+    var btnCmdMob = el("button", { type: "button", classe: "botao botao--fantasma", texto: "Buscar / Comandos" });
+    btnCmdMob.addEventListener("click", function () {
+      fecharPainel(false);
+      if (typeof window.abrirComandos === "function") window.abrirComandos(botaoCmd);
+    });
+    acoesMobile.appendChild(btnCmdMob);
+    if (contato.github) acoesMobile.appendChild(linkExterno(contato.github, "GitHub", "botao botao--contorno"));
+    if (contato.whatsapp) {
+      var num = String(contato.whatsapp).replace(/\D/g, "");
+      var msg = contato.mensagemWhatsapp ? "?text=" + encodeURIComponent(contato.mensagemWhatsapp) : "";
+      acoesMobile.appendChild(linkExterno("https://wa.me/" + num + msg, "WhatsApp", "botao botao--cheio"));
+    }
+
+    painelMobile = el("nav", { id: "navegacao-mobile", classe: "topo__painel", "aria-label": "Menu móvel" }, [
+      listaMobile,
+      acoesMobile,
+    ]);
+
+    topo.replaceChildren(barraTopo, painelMobile);
+
+    // Hover fantasma na barra desktop
+    listaDesktop.addEventListener("pointerover", function (e) {
+      var link = e.target.closest(".topo__link");
+      if (!link || !fantasma) return;
+      posicionarPilula(fantasma, link);
+      fantasma.classList.add("is-visivel");
+    });
+    navDesktop.addEventListener("pointerleave", function () {
+      if (fantasma) fantasma.classList.remove("is-visivel");
+    });
+
+    // Controle do menu mobile
     botaoMenu.addEventListener("click", function () {
       if (painelAberto) fecharPainel(true);
       else abrirPainel();
     });
-    // Clicar num link fecha o painel; a âncora segue normal (scroll-margin-top compensa o topo).
-    lista.addEventListener("click", function (e) {
-      if (e.target.closest("a") && painelAberto) fecharPainel(false);
+
+    painelMobile.addEventListener("click", function (e) {
+      if (e.target === painelMobile && painelAberto) fecharPainel(true);
     });
-    var mudouLargura = function () {
-      if (!mqPainel.matches && painelAberto) fecharPainel(false);
-    };
-    if (mqPainel.addEventListener) mqPainel.addEventListener("change", mudouLargura);
+
+    if (mqMobile.addEventListener) {
+      mqMobile.addEventListener("change", function () {
+        if (!mqMobile.matches && painelAberto) fecharPainel(false);
+        posicionarIndicadorAtivo();
+      });
+    }
+
+    // Intercepta links internos de seção para rolagem precisa e indicador imediato
+    document.addEventListener("click", function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+      if (!a || a.classList.contains("pular")) return;
+      var hash = a.getAttribute("href");
+      if (!hash || hash.length < 2) return;
+      var id = hash.slice(1);
+      var alvo = document.getElementById(id);
+      if (!alvo) return;
+      e.preventDefault();
+      irParaSecao(id);
+    });
   }
 
+  function posicionarPilula(pilula, link) {
+    if (!pilula || !link || !navDesktop) return;
+    var rNav = navDesktop.getBoundingClientRect();
+    var rLink = link.getBoundingClientRect();
+    if (!rLink.width) return;
+    var x = rLink.left - rNav.left;
+    pilula.style.width = rLink.width.toFixed(1) + "px";
+    pilula.style.transform = "translate3d(" + x.toFixed(1) + "px, 0, 0)";
+  }
+
+  function posicionarIndicadorAtivo() {
+    var link = linksDesktop[secaoAtual];
+    if (!indicador || !link || mqMobile.matches) {
+      if (indicador) indicador.classList.remove("is-ativo");
+      return;
+    }
+    posicionarPilula(indicador, link);
+    indicador.classList.add("is-ativo");
+  }
+
+  function definirSecaoAtiva(id) {
+    if (!id || (!linksDesktop[id] && !linksMobile[id])) return;
+    secaoAtual = id;
+    Object.keys(linksDesktop).forEach(function (k) {
+      if (k === id) linksDesktop[k].setAttribute("aria-current", "true");
+      else linksDesktop[k].removeAttribute("aria-current");
+    });
+    Object.keys(linksMobile).forEach(function (k) {
+      if (k === id) linksMobile[k].setAttribute("aria-current", "true");
+      else linksMobile[k].removeAttribute("aria-current");
+    });
+    posicionarIndicadorAtivo();
+  }
+
+  function irParaSecao(id) {
+    var alvo = document.getElementById(id);
+    if (!alvo) return;
+    if (painelAberto) fecharPainel(false);
+
+    if (linksDesktop[id] || linksMobile[id]) {
+      secaoTravada = id;
+      definirSecaoAtiva(id);
+      clearTimeout(timerTrava);
+      timerTrava = setTimeout(function () {
+        secaoTravada = null;
+        pedirAtualizacaoNav();
+      }, semMovimento() ? 60 : 780);
+    }
+
+    var altTopo = topo ? topo.getBoundingClientRect().height : 76;
+    var y = id === "hero" ? 0 : Math.max(0, alvo.getBoundingClientRect().top + window.scrollY - altTopo + 6);
+    window.scrollTo({ top: y, behavior: semMovimento() ? "auto" : "smooth" });
+    if (history.replaceState) {
+      history.replaceState(null, "", id === "hero" ? window.location.pathname + window.location.search : "#" + id);
+    }
+  }
+  window.irParaSecao = irParaSecao;
+
   function medirTopo() {
-    if (topo) raiz.style.setProperty("--topo-alt", Math.ceil(topo.getBoundingClientRect().height) + "px");
+    if (topo && barraTopo) {
+      var h = Math.ceil(barraTopo.getBoundingClientRect().height + 16);
+      raiz.style.setProperty("--topo-alt", h + "px");
+    }
+    posicionarIndicadorAtivo();
   }
 
   function abrirPainel() {
+    if (!painelMobile || !botaoMenu) return;
     painelAberto = true;
-    nav.classList.add("is-aberto");
+    painelMobile.classList.add("is-aberto");
     raiz.classList.add("sem-rolagem");
     botaoMenu.setAttribute("aria-expanded", "true");
     botaoMenu.querySelector(".topo__menu-texto").textContent = "Fechar";
-    var primeiro = nav.querySelector("a");
+    var primeiro = painelMobile.querySelector("a, button");
     if (primeiro) primeiro.focus();
     document.addEventListener("keydown", teclasPainel);
   }
 
   function fecharPainel(devolverFoco) {
+    if (!painelMobile || !botaoMenu) return;
     painelAberto = false;
-    nav.classList.remove("is-aberto");
+    painelMobile.classList.remove("is-aberto");
     raiz.classList.remove("sem-rolagem");
     botaoMenu.setAttribute("aria-expanded", "false");
     botaoMenu.querySelector(".topo__menu-texto").textContent = "Menu";
@@ -145,82 +355,160 @@
       return;
     }
     if (e.key !== "Tab") return;
-    var itens = [botaoMenu].concat(Array.prototype.slice.call(nav.querySelectorAll("a[href]")));
-    var i = itens.indexOf(document.activeElement);
+    var focaveis = [botaoMenu].concat(
+      Array.prototype.slice.call(painelMobile.querySelectorAll("a[href], button:not([disabled])"))
+    );
+    var idx = focaveis.indexOf(document.activeElement);
     e.preventDefault();
-    var prox = e.shiftKey ? (i <= 0 ? itens.length - 1 : i - 1) : i === -1 || i === itens.length - 1 ? 0 : i + 1;
-    itens[prox].focus();
+    var prox = e.shiftKey
+      ? idx <= 0
+        ? focaveis.length - 1
+        : idx - 1
+      : idx === -1 || idx === focaveis.length - 1
+      ? 0
+      : idx + 1;
+    focaveis[prox].focus();
   }
 
-  // Marca a seção que cruza a faixa logo abaixo do topo.
-  function ligarSecaoAtual() {
-    if (!nav || !("IntersectionObserver" in window)) return;
-    var links = {};
-    Array.prototype.forEach.call(nav.querySelectorAll("[data-secao]"), function (a) {
-      links[a.getAttribute("data-secao")] = a;
-    });
-    var visiveis = {};
-    function marcar() {
-      var atual = null;
-      SECOES.forEach(function (s) {
-        if (visiveis[s.id]) atual = atual || s.id;
-      });
-      Object.keys(links).forEach(function (id) {
-        if (id === atual) links[id].setAttribute("aria-current", "true");
-        else links[id].removeAttribute("aria-current");
-      });
+  function atualizarNavegacao() {
+    scrollRaf = false;
+    var y = window.scrollY || window.pageYOffset || 0;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 1;
+    var total = Math.max(1, document.documentElement.scrollHeight - vh);
+    var p = Math.min(1, Math.max(0, y / total));
+
+    if (topo) topo.classList.toggle("is-rolando", y > 24);
+    if (barraTopo) barraTopo.style.setProperty("--progresso", p.toFixed(4));
+
+    if (secaoTravada) return;
+
+    // Se chegou ao fim da página, destaca a última seção disponível
+    if (y + vh >= document.documentElement.scrollHeight - 36 && y > 80) {
+      for (var j = SECOES.length - 1; j >= 0; j--) {
+        if (document.getElementById(SECOES[j].id)) {
+          if (secaoAtual !== SECOES[j].id) definirSecaoAtiva(SECOES[j].id);
+          return;
+        }
+      }
     }
-    var io = new IntersectionObserver(
-      function (entradas) {
-        entradas.forEach(function (en) {
-          visiveis[en.target.id] = en.isIntersecting;
-        });
-        marcar();
-      },
-      { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
-    );
-    Object.keys(links).forEach(function (id) {
-      io.observe(document.getElementById(id));
+
+    var linhaCorte = vh * 0.34;
+    var candidata = "hero";
+    SECOES.forEach(function (s) {
+      var sec = document.getElementById(s.id);
+      if (!sec) return;
+      if (sec.getBoundingClientRect().top <= linhaCorte) {
+        candidata = s.id;
+      }
     });
+    if (candidata !== secaoAtual) definirSecaoAtiva(candidata);
+  }
+
+  function pedirAtualizacaoNav() {
+    if (!scrollRaf) {
+      scrollRaf = true;
+      requestAnimationFrame(atualizarNavegacao);
+    }
   }
 
   /* ---------- Hero ---------- */
   var hero = document.getElementById("hero");
   var heroNome = null;
 
+  function criarLinhaLetras(palavra) {
+    var spanLinha = el("span", { classe: "hero__linha", "aria-hidden": "true" });
+    Array.from(String(palavra || "")).forEach(function (ch) {
+      if (ch === " ") {
+        spanLinha.appendChild(document.createTextNode("\u00A0"));
+      } else {
+        spanLinha.appendChild(el("span", { classe: "hero__letra", "data-letra": ch, texto: ch }));
+      }
+    });
+    return spanLinha;
+  }
+
   function montarHero() {
     if (!hero) return;
-    heroNome = el("h1", { id: "hero-nome", classe: "hero__nome" }, [
-      el("span", { classe: "hero__linha", texto: pessoa.nome || "" }),
-      " ",
-      pessoa.sobrenome ? el("span", { classe: "hero__linha", texto: pessoa.sobrenome }) : null,
+
+    var canvas = el("canvas", { id: "hero-canvas", classe: "hero__canvas", "aria-hidden": "true" });
+    var vinheta = el("div", { classe: "hero__vinheta", "aria-hidden": "true" });
+
+    // HUD interativo no topo do hero
+    var statusHud = el("div", { classe: "hero__hud-esq" }, [
+      pessoa.disponivel ? el("span", { classe: "status", texto: textoDisponivel() }) : null,
+      pessoa.local ? el("span", { classe: "hero__local-tag", texto: pessoa.local }) : null,
     ]);
 
-    var cargo = el("p", { classe: "hero__cargo" }, [
-      pessoa.cargo || "",
-      pessoa.local ? el("span", { classe: "hero__local", texto: pessoa.local }) : null,
+    var botoesModo = [
+      { id: "rede", rotulo: "Rede" },
+      { id: "gravidade", rotulo: "Gravidade" },
+      { id: "vortice", rotulo: "Vórtice" },
+    ].map(function (m, idx) {
+      return el("button", {
+        type: "button",
+        classe: "hero__modo",
+        "data-modo-hero": m.id,
+        "aria-pressed": idx === 0 ? "true" : "false",
+        texto: m.rotulo,
+      });
+    });
+
+    var controlesHud = el("div", { classe: "hero__hud-dir" }, [
+      el("div", { classe: "hero__modos", role: "group", "aria-label": "Simulação interativa de fundo" }, botoesModo),
+      el("span", { id: "hero-telemetria", classe: "hero__telemetria", "aria-hidden": "true", texto: "60 FPS" }),
     ]);
 
-    var texto = el("div", { classe: "hero__texto" }, [
+    var hud = el("div", { classe: "hero__hud" }, [statusHud, controlesHud]);
+
+    // Nome gigante em fonte variável letra por letra
+    heroNome = el(
+      "h1",
+      { id: "hero-nome", classe: "hero__nome", "aria-label": nomeCompleto() },
+      [
+        criarLinhaLetras(pessoa.nome || ""),
+        pessoa.sobrenome ? criarLinhaLetras(pessoa.sobrenome) : null,
+      ]
+    );
+
+    var cargoBloco = el("div", { classe: "hero__bloco-cargo" }, [
+      el("p", { classe: "hero__cargo" }, [
+        el("span", { texto: pessoa.cargo || "Desenvolvedor full stack" }),
+        el("span", { id: "hero-especialidade", classe: "hero__especialidade", texto: "Next.js · TypeScript · Interfaces" }),
+      ]),
       pessoa.resumo ? el("p", { classe: "hero__resumo", texto: pessoa.resumo }) : null,
-      pessoa.disponivel ? el("p", { classe: "status", texto: textoDisponivel() }) : null,
       pessoa.exemplo ? el("p", null, [etiquetaExemplo()]) : null,
       pendente(pessoa.pendente),
     ]);
 
-    var rolagem = el("a", { href: "#sobre", classe: "hero__rolagem" }, [
-      el("span", { texto: "Role para ver os projetos" }),
-      el("span", { classe: "hero__linha-rolagem", "aria-hidden": "true" }),
+    var dicaTexto = mqCursor.matches
+      ? "Mova o cursor pelas letras ou clique na tela para disparar ondas"
+      : "Toque ou arraste na tela para interagir com o campo";
+
+    var acoesBloco = el("div", { classe: "hero__bloco-acoes" }, [
+      el("div", { classe: "hero__acoes" }, [
+        el("a", { href: "#projetos", classe: "botao botao--cheio", "data-magnetico": "true", texto: "Ver projetos" }),
+        el("a", { href: "#curriculo", classe: "botao botao--contorno", "data-magnetico": "true", texto: "Currículo" }),
+        el("a", { href: "#contato", classe: "botao botao--fantasma", "data-magnetico": "true", texto: "Contato" }),
+      ]),
+      el("p", { classe: "hero__dica", "aria-hidden": "true", texto: dicaTexto }),
     ]);
 
-    hero.replaceChildren(heroNome, el("div", { classe: "hero__info" }, [cargo, texto, rolagem]));
+    var conteudo = el("div", { classe: "hero__conteudo" }, [
+      hud,
+      heroNome,
+      el("div", { classe: "hero__info" }, [cargoBloco, acoesBloco]),
+    ]);
+
+    hero.replaceChildren(canvas, vinheta, conteudo);
   }
 
-  // Encaixa as linhas na largura disponível, medindo no peso 900 (o mais largo).
+  // Encaixa linhas display na largura disponível medindo sempre no peso 900.
   function encaixar(alvo, linhas, propriedade, caixa, maxPx) {
-    if (!alvo || !linhas.length) return;
+    if (!alvo || !linhas.length || !caixa) return;
     var estilo = getComputedStyle(caixa);
-    var largura = caixa.clientWidth - px(estilo.paddingLeft) - px(estilo.paddingRight);
+    var largCaixa = Math.min(caixa.clientWidth, document.documentElement.clientWidth || caixa.clientWidth);
+    var largura = largCaixa - px(estilo.paddingLeft) - px(estilo.paddingRight);
+    alvo.classList.add("is-medindo");
     var pesoAntes = alvo.style.fontWeight;
     alvo.style.fontWeight = "900";
     alvo.style.setProperty(propriedade, "100px");
@@ -229,133 +517,72 @@
       maior = Math.max(maior, l.getBoundingClientRect().width);
     });
     alvo.style.fontWeight = pesoAntes;
+    alvo.classList.remove("is-medindo");
     if (!maior) return;
-    var tam = Math.floor(((100 * largura) / maior) * 0.99 * 10) / 10;
+    var tam = Math.floor(((100 * largura) / maior) * 0.985 * 10) / 10;
     if (maxPx) tam = Math.min(tam, maxPx);
     alvo.style.setProperty(propriedade, tam + "px");
   }
 
   function encaixarHero() {
-    if (!heroNome) return;
+    if (!heroNome || !hero) return;
     var rem = px(getComputedStyle(raiz).fontSize) || 16;
     var linhas = Array.prototype.slice.call(heroNome.querySelectorAll(".hero__linha"));
-    var entrelinha = (px(getComputedStyle(heroNome).lineHeight) / px(getComputedStyle(heroNome).fontSize)) || 0.82;
-    var alturaLinhas = Math.max(1, linhas.length) * entrelinha; // altura do nome em "em"
+    var entrelinha = px(getComputedStyle(heroNome).lineHeight) / px(getComputedStyle(heroNome).fontSize) || 0.82;
+    var alturaLinhas = Math.max(1, linhas.length) * entrelinha;
     var vh = document.documentElement.clientHeight || window.innerHeight;
 
-    // A primeira tela mostra nome, cargo e a indicação de rolagem:
-    // o nome fica com o que sobra da altura, e no máximo 62% dela.
     var est = getComputedStyle(hero);
+    var hud = hero.querySelector(".hero__hud");
     var info = hero.querySelector(".hero__info");
-    var outros = px(est.paddingTop) + px(est.paddingBottom) + (info ? info.offsetHeight + px(getComputedStyle(info).paddingTop) : 0);
-    var tetoAltura = Math.min(0.62 * vh, vh - outros) / alturaLinhas;
+    var ocupados =
+      px(est.paddingTop) +
+      px(est.paddingBottom) +
+      (hud ? hud.offsetHeight + 16 : 0) +
+      (info ? info.offsetHeight + 20 : 0);
 
-    // Teto final: 26rem (maior valor de --t-mega), com piso de 3.5rem.
-    var teto = Math.max(3.5 * rem, Math.min(26 * rem, tetoAltura));
+    var tetoAltura = Math.min(0.56 * vh, vh - ocupados) / alturaLinhas;
+    var teto = Math.max(3.4 * rem, Math.min(24 * rem, tetoAltura));
     heroNome.classList.add("is-medido");
     encaixar(heroNome, linhas, "--nome-tam", hero, teto);
-    medirHero();
+    if (typeof window.atualizarCentrosLetras === "function") window.atualizarCentrosLetras();
   }
+  window.reencaixarHero = encaixarHero;
 
-  /* Morph do nome ao rolar: peso de 900 para 200 e o nome sobe um pouco. */
-  var heroAltura = 0;
-  var morphPendente = false;
-  var ultimoP = -1;
-
-  function medirHero() {
-    heroAltura = hero ? hero.offsetHeight : 0;
-  }
-
-  function aplicarMorph() {
-    morphPendente = false;
-    if (!heroNome || semMovimento() || !heroAltura) return;
-    var p = Math.min(1, Math.max(0, window.scrollY / (heroAltura * 0.75)));
-    if (p === ultimoP) return;
-    ultimoP = p;
-    var peso = Math.round(900 - 700 * p);
-    heroNome.style.fontWeight = String(peso);
-    heroNome.style.transform = "translate3d(0," + (-p * window.innerHeight * 0.07).toFixed(1) + "px,0)";
-  }
-
-  function pedirMorph() {
-    if (!morphPendente) {
-      morphPendente = true;
-      requestAnimationFrame(aplicarMorph);
-    }
-  }
-
-  function ligarMorph() {
-    if (!heroNome) return;
-    heroNome.classList.add("is-morph");
-    window.addEventListener("scroll", pedirMorph, { passive: true });
-    pedirMorph();
-  }
-
-  function limparMorph() {
-    if (!heroNome) return;
-    heroNome.style.fontWeight = "";
-    heroNome.style.transform = "";
-    ultimoP = -1;
-  }
-
-  /* ---------- Loader ---------- */
+  /* ---------- Loader Rápido ---------- */
   var loader = document.querySelector(".loader");
 
   function rodarLoader(fontesProntas) {
     if (!loader) return Promise.resolve();
     function terminar() {
       loader.classList.add("is-fim");
-      raiz.classList.remove("sem-rolagem");
     }
-    if (semMovimento() || !heroNome) {
+    if (semMovimento()) {
       terminar();
       return Promise.resolve();
     }
 
-    raiz.classList.add("sem-rolagem");
-    var nome = el("p", { classe: "loader__nome" }, [
-      el("span", { texto: pessoa.nome || "" }),
-      pessoa.sobrenome ? el("span", { texto: pessoa.sobrenome }) : null,
-    ]);
-    loader.replaceChildren(nome);
-
-    function alinhar() {
-      // O nome do loader fica exatamente sobre o nome do hero.
-      var r = heroNome.getBoundingClientRect();
-      nome.style.fontSize = getComputedStyle(heroNome).fontSize;
-      nome.style.transform = "translate(" + r.left + "px," + r.top + "px)";
-    }
-    // Se as fontes chegarem no meio do loader, o hero é reencaixado; realinha.
-    fontesProntas.then(function () {
-      if (nome.style.transform && !loader.classList.contains("is-fim")) alinhar();
+    var barra = el("div", { classe: "loader__barra" }, [el("span", { classe: "loader__laser" })]);
+    loader.replaceChildren(barra);
+    requestAnimationFrame(function () {
+      loader.classList.add("is-carregando");
     });
 
-    // Espera as fontes por no máximo 100ms, preservando o orçamento do loader.
     var espera = new Promise(function (ok) {
-      setTimeout(ok, 100);
+      setTimeout(ok, 60);
     });
+
     return Promise.race([fontesProntas, espera]).then(function () {
       encaixarHero();
-      alinhar();
-      // Inclui o tempo de rede/CSS no limite, inclusive no primeiro acesso.
-      var duracao = Math.min(680, Math.max(0, 1200 - performance.now()));
-      var ritmo = duracao / 680;
-      loader.style.transitionDuration = (420 * ritmo) + "ms";
-      var pesos = [100, 400, 700, 900];
       return new Promise(function (ok) {
-        pesos.forEach(function (peso, i) {
-          setTimeout(function () {
-            nome.style.fontWeight = String(peso);
-          }, i * 70 * ritmo);
-        });
         setTimeout(function () {
           loader.classList.add("is-saindo");
-          raiz.classList.remove("sem-rolagem");
-        }, 240 * ritmo);
+          if (typeof window.iniciarEntradaHero === "function") window.iniciarEntradaHero();
+        }, 120);
         setTimeout(function () {
           terminar();
           ok();
-        }, duracao);
+        }, 460);
       });
     });
   }
@@ -373,7 +600,6 @@
       });
       return ul;
     }
-    // Dois grupos iguais: o trilho anda -50% e emenda sem corte.
     marquee.replaceChildren(el("div", { classe: "marquee__trilho" }, [grupo(), grupo()]));
     ajustarMarquee();
   }
@@ -416,7 +642,10 @@
       var idiomas = el("ul", { classe: "sobre__idiomas", "aria-labelledby": "sobre-idiomas" });
       sobre.idiomas.forEach(function (d) {
         idiomas.appendChild(
-          el("li", null, [el("span", { texto: d.idioma || "" }), d.nivel ? el("span", { classe: "sobre__nivel", texto: d.nivel }) : null])
+          el("li", null, [
+            el("span", { texto: d.idioma || "" }),
+            d.nivel ? el("span", { classe: "sobre__nivel", texto: d.nivel }) : null,
+          ])
         );
       });
       habilidades.appendChild(el("h3", { id: "sobre-idiomas", classe: "sobre__subtitulo", texto: "Idiomas" }));
@@ -426,25 +655,6 @@
   }
 
   /* ---------- Contato ---------- */
-  function copiarTexto(texto) {
-    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
-    return new Promise(function (ok, falha) {
-      var area = el("textarea", { readonly: true, style: "position:fixed;top:0;left:-9999px" });
-      area.value = texto;
-      document.body.appendChild(area);
-      area.select();
-      var deu = false;
-      try {
-        deu = document.execCommand("copy");
-      } catch (err) {
-        deu = false;
-      }
-      area.remove();
-      if (deu) ok();
-      else falha(new Error("cópia indisponível"));
-    });
-  }
-
   function montarContato() {
     var secao = document.getElementById("contato");
     if (!secao) return;
@@ -456,13 +666,13 @@
       filhos.push(el("p", null, [el("a", { href: "mailto:" + contato.email, classe: "contato__email" }, [contato.email])]));
 
       var aviso = el("p", { classe: "contato__aviso", role: "status", "aria-live": "polite" });
-      var botao = el("button", { type: "button", classe: "botao botao--contorno" }, ["Copiar e-mail"]);
+      var botao = el("button", { type: "button", classe: "botao botao--contorno", "data-magnetico": "true" }, ["Copiar e-mail"]);
       var timer = 0;
       botao.addEventListener("click", function () {
         copiarTexto(contato.email).then(
           function () {
             botao.textContent = "E-mail copiado";
-            aviso.textContent = "E-mail copiado";
+            aviso.textContent = "E-mail copiado para a área de transferência";
           },
           function () {
             aviso.textContent = "Não deu para copiar. Selecione o e-mail acima e copie.";
@@ -516,9 +726,7 @@
   }
 
   /* ---------- Títulos display: quebra só em espaços ---------- */
-  // O navegador quebra linha depois de "-" (FRONT-END). Envolver a palavra
-  // em .sem-quebra (white-space: nowrap) deixa só os espaços como quebra.
-  var SELETOR_DISPLAY = ".titulo-secao, .projeto__nome, .credencial__nome, h1, h2, h3, h4";
+  var SELETOR_DISPLAY = ".titulo-secao, .card-projeto__nome, .credencial__nome, h2, h3, h4";
 
   function protegerHifens(raizBusca) {
     var base = raizBusca || document;
@@ -596,8 +804,8 @@
       rodando = false;
 
     function quadro() {
-      x += (alvoX - x) * 0.22;
-      y += (alvoY - y) * 0.22;
+      x += (alvoX - x) * 0.24;
+      y += (alvoY - y) * 0.24;
       cursor.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0)";
       if (Math.abs(alvoX - x) > 0.1 || Math.abs(alvoY - y) > 0.1) requestAnimationFrame(quadro);
       else rodando = false;
@@ -641,7 +849,6 @@
       cursor.classList.remove("is-visivel");
     });
 
-    // Só agora o CSS troca o cursor do sistema: se algo acima falhar, ele fica.
     raiz.classList.add("cursor-on");
   }
 
@@ -656,6 +863,10 @@
 
   encaixarHero();
   encaixarRodape();
+  definirSecaoAtiva("hero");
+
+  window.addEventListener("scroll", pedirAtualizacaoNav, { passive: true });
+  pedirAtualizacaoNav();
 
   var fontesProntas = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
   fontesProntas.then(function () {
@@ -663,11 +874,10 @@
     encaixarHero();
     encaixarRodape();
     ajustarMarquee();
+    posicionarIndicadorAtivo();
   });
 
-  rodarLoader(fontesProntas).then(function () {
-    if (!semMovimento()) ligarMorph();
-  });
+  rodarLoader(fontesProntas);
 
   var timerTela = 0;
   window.addEventListener("resize", function () {
@@ -677,25 +887,28 @@
       encaixarHero();
       encaixarRodape();
       ajustarMarquee();
-      ultimoP = -1;
-      pedirMorph();
-    }, 120);
+      pedirAtualizacaoNav();
+    }, 100);
   });
 
-  mqMovimento.addEventListener &&
+  if (mqMovimento.addEventListener) {
     mqMovimento.addEventListener("change", function () {
-      if (semMovimento()) {
-        limparMorph();
-        revelarTudo(document);
-      } else ligarMorph();
+      if (semMovimento()) revelarTudo(document);
     });
+  }
 
-  // Projetos e documentos renderizam antes (scripts defer anteriores ou no
-  // DOMContentLoaded); as revelações e o cursor ligam depois deles.
   function finalizar() {
     observarRevelacoes(document);
-    ligarSecaoAtual();
     ligarCursor();
+    posicionarIndicadorAtivo();
+    if (window.location.hash && window.location.hash.length > 1) {
+      var hashId = window.location.hash.slice(1);
+      if (document.getElementById(hashId)) {
+        setTimeout(function () {
+          irParaSecao(hashId);
+        }, 60);
+      }
+    }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", finalizar);
   else finalizar();
