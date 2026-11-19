@@ -3,29 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0A0A0A" />
   <title>Página não encontrada | Igor Romero</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <!-- O GitHub Pages serve este arquivo em qualquer caminho que não existe,
+       então todos os caminhos são absolutos a partir de /portfolio/. -->
+  <link rel="icon" type="image/svg+xml" href="/portfolio/assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Sofia+Sans+Extra+Condensed:wght@100..900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/portfolio/css/tokens.css" />
-  <style>
-    * { box-sizing: border-box; }
-    html { background: var(--preto, #0a0a0a); color: var(--giz, #ededed); }
-    body { margin: 0; font-family: var(--f-texto, "Archivo", sans-serif); }
-    main { min-height: 100svh; padding: clamp(24px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
-    h1 { margin: 0 0 32px; font-family: var(--f-display, "Sofia Sans Extra Condensed", sans-serif); font-size: clamp(10rem, 40vw, 32rem); font-weight: 900; line-height: .85; letter-spacing: -.04em; color: var(--destaque-texto, #6e97ff); }
-    p { max-width: 42ch; margin: 0 0 28px; font-size: clamp(1rem, 2vw, 1.333rem); line-height: 1.55; }
-    a { min-height: 48px; display: inline-flex; align-items: center; padding: 12px 20px; border: 1px solid currentColor; color: inherit; font-weight: 600; text-decoration: none; }
-    a:hover { background: var(--giz, #ededed); color: var(--preto, #0a0a0a); }
-    a:focus-visible { outline: 3px solid var(--destaque, #2f6bff); outline-offset: 6px; }
-  </style>
+  <link rel="stylesheet" href="/portfolio/css/base.css" />
+  <script defer src="/portfolio/data.js"></script>
+  <script defer src="/portfolio/js/shell.js"></script>
 </head>
-<body>
-  <main>
-    <h1>404</h1>
-    <p>Esta página não existe. Volte para o início.</p>
-    <a href="/portfolio/">Voltar para o início</a>
+<body data-pagina="404" data-base="/portfolio/">
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- shell.js / base.css: cabeçalho com a navegação entre páginas -->
+  <header class="topo" id="topo"></header>
+
+  <main id="conteudo">
+    <section class="erro" aria-labelledby="erro-titulo">
+      <h1 class="erro__codigo" id="erro-titulo">404</h1>
+      <p class="erro__texto">Esta página não existe. O endereço pode ter mudado ou ter sido digitado errado.</p>
+      <p class="erro__acoes">
+        <a class="botao botao--cheio" href="/portfolio/">Voltar para o início</a>
+        <a class="botao botao--contorno" href="/portfolio/projetos.html">Ver projetos</a>
+      </p>
+    </section>
   </main>
+
+  <!-- shell.js / base.css -->
+  <footer class="rodape" id="rodape"></footer>
 </body>
 </html>

@@ -24,11 +24,8 @@ html {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
+/* Sem scroll-behavior: smooth. São páginas separadas, sem âncoras, e a rolagem
+   suave deixava o cabeçalho sticky deslocado durante a rolagem. */
 
 body {
   margin: 0;
@@ -117,6 +114,11 @@ html.sem-rolagem {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* O alvo do "Pular para o conteúdo" não fica escondido atrás do cabeçalho sticky. */
+#conteudo {
+  scroll-margin-top: 72px;
 }
 
 /* ---------- Pular para o conteúdo ---------- */
@@ -238,10 +240,12 @@ html.sem-rolagem {
   color: var(--destaque-tinta);
 }
 
-.botao--cheio:hover {
-  border-color: var(--giz);
-  background: var(--giz);
-  color: var(--preto);
+@media (hover: hover) {
+  .botao--cheio:hover {
+    border-color: var(--giz);
+    background: var(--giz);
+    color: var(--preto);
+  }
 }
 
 .botao--contorno {
@@ -249,9 +253,11 @@ html.sem-rolagem {
   color: var(--giz);
 }
 
-.botao--contorno:hover {
-  background: var(--giz);
-  color: var(--preto);
+@media (hover: hover) {
+  .botao--contorno:hover {
+    background: var(--giz);
+    color: var(--preto);
+  }
 }
 
 .sem-js {
@@ -340,9 +346,11 @@ html.sem-rolagem {
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-.topo__link:hover {
-  color: var(--giz);
-  border-bottom-color: var(--grafite-2);
+@media (hover: hover) {
+  .topo__link:hover {
+    color: var(--giz);
+    border-bottom-color: var(--grafite-2);
+  }
 }
 
 .topo__link[aria-current="page"] {
@@ -673,6 +681,7 @@ html.sem-rolagem {
   transition: text-decoration-color 0.2s ease, color 0.2s ease;
 }
 
+.contato__rede:focus-visible,
 .contato__rede:hover {
   color: var(--destaque-texto);
   text-decoration-color: var(--destaque-texto);
@@ -682,6 +691,34 @@ html.sem-rolagem {
   margin-top: 8px;
   color: var(--fumaca);
   overflow-wrap: anywhere;
+}
+
+/* ---------- 404 ---------- */
+.erro {
+  padding: clamp(48px, 8vw, 120px) var(--gutter) clamp(24px, 4vw, 48px);
+}
+
+.erro__codigo {
+  color: var(--destaque-texto);
+  font-family: var(--f-display);
+  font-size: clamp(9rem, 38vw, 30rem);
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+}
+
+.erro__texto {
+  max-width: 42ch;
+  margin-top: clamp(24px, 4vw, 48px);
+  font-size: var(--t1);
+  line-height: 1.45;
+}
+
+.erro__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-top: 32px;
 }
 
 /* ---------- Rodapé ---------- */
@@ -757,7 +794,11 @@ html.sem-rolagem {
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
+    /* 0s e não 0.01ms: com duração > 0 toda propriedade (transition-property
+       começa em "all") vira transição, e o JS que muda e mede o tamanho do
+       nome do rodapé lia o valor antigo e cortava o nome. */
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }

@@ -203,7 +203,7 @@
 
   function nosAlvo() {
     var area = W * H;
-    if (celular) return Math.round(Math.max(260, Math.min(460, area / 650)));
+    if (celular) return Math.round(Math.max(320, Math.min(860, area / 360)));
     return Math.round(Math.max(420, Math.min(1100, area / 1150)));
   }
 
@@ -219,33 +219,39 @@
     off.width = W;
     off.height = H;
     var o = off.getContext("2d", { willReadFrequently: true });
+    // Cada linha ganha o próprio corpo para encostar nas duas margens (no
+    // celular, IGOR e ROMERO formam um bloco justificado); depois o bloco todo
+    // encolhe por igual se não couber na altura livre.
     o.font = "900 100px " + familia;
-    var maior = 0, cap = 0;
-    linhas.forEach(function (l) {
-      var m = o.measureText(l);
-      maior = Math.max(maior, m.width);
-      cap = Math.max(cap, m.actualBoundingBoxAscent || 70);
-    });
-    cap = cap / 100; // altura das maiúsculas por px de fonte
-
     var g = gutter();
+    var largLivre = W - 2 * g;
+    var med = linhas.map(function (l) {
+      var m = o.measureText(l);
+      var esq = m.actualBoundingBoxLeft || 0;
+      var tinta = (m.actualBoundingBoxRight || m.width) + esq;
+      return { l: l, esq: esq / 100, tinta: tinta / 100, cap: (m.actualBoundingBoxAscent || 70) / 100 };
+    });
     var hudH = hudEl ? hudEl.offsetHeight : 120;
-    var topoLivre = Math.max(24, H * 0.06);
-    var baseLivre = H - hudH - Math.max(40, H * 0.07);
+    var topoLivre = Math.max(24, H * (celular ? 0.05 : 0.06));
+    var baseLivre = H - hudH - Math.max(celular ? 28 : 40, H * (celular ? 0.04 : 0.07));
     var altLivre = Math.max(80, baseLivre - topoLivre);
-    var espaco = 0.14; // entre linhas, em alturas de maiúscula
-    var porLargura = ((W - 2 * g) / maior) * 100;
-    var porAltura = altLivre / (cap * (linhas.length + espaco * (linhas.length - 1)));
-    var fs = Math.min(porLargura, porAltura);
-    var capPx = cap * fs;
-    var blocoH = capPx * (linhas.length + espaco * (linhas.length - 1));
-    var y0 = topoLivre + (altLivre - blocoH) / 2;
+    var espaco = 0.12; // entre linhas, em alturas de maiúscula da linha de baixo
+    var tamanhos = med.map(function (m) { return largLivre / m.tinta; });
+    var blocoH = 0;
+    med.forEach(function (m, i) { blocoH += m.cap * tamanhos[i] * (i ? 1 + espaco : 1); });
+    var esc = Math.min(1, altLivre / blocoH);
+    blocoH *= esc;
+    var y = topoLivre + (altLivre - blocoH) / 2;
 
     o.fillStyle = "#fff";
     o.textBaseline = "alphabetic";
-    o.font = "900 " + fs + "px " + familia;
-    linhas.forEach(function (l, i) {
-      o.fillText(l, g, y0 + capPx * (i + 1) + capPx * espaco * i);
+    med.forEach(function (m, i) {
+      var fs = tamanhos[i] * esc;
+      var capPx = m.cap * fs;
+      if (i) y += capPx * espaco;
+      y += capPx;
+      o.font = "900 " + fs + "px " + familia;
+      o.fillText(m.l, g + m.esq * fs, y);
     });
 
     var dados = o.getImageData(0, 0, W, H).data;
@@ -318,7 +324,7 @@
         VX[i] = Math.cos(ang) * v; VY[i] = Math.sin(ang) * v;
       }
       // Os nós chegam numa varredura da esquerda para a direita, com ruído.
-      ATRASO[i] = (TX[i] / W) * 0.7 + rand(0, 0.35);
+      ATRASO[i] = (TX[i] / W) * 0.35 + rand(0, 0.2);
       sx += TX[i];
     }
 
@@ -509,7 +515,7 @@
     var r = canvas.getBoundingClientRect();
     return [ev.clientX - r.left, ev.clientY - r.top];
   }
-  function raioEmpurra() { return celular ? 70 : 120; }
+  function raioEmpurra() { return celular ? 80 : 140; }
 
   function aoMover(ev) {
     var p = local(ev);
@@ -567,8 +573,8 @@
   /* ---------- Física ---------- */
   function passoFisica(dt, t) {
     var tf = t - tForma;
-    var kMax = 34, amort = Math.exp(-6.5 * dt);
-    var R = raioEmpurra(), R2 = R * R, forca = celular ? 2600 : 4200;
+    var kMax = 64, amort = Math.exp(-9.5 * dt);
+    var R = raioEmpurra(), R2 = R * R, forca = celular ? 7000 : 12000;
     var empurra = ponteiro.dentro && !ponteiro.arrastando;
     var px = ponteiro.x, py = ponteiro.y;
 
@@ -577,7 +583,7 @@
       if (formado) {
         var idade = tf - ATRASO[i];
         if (idade > 0) {
-          var e = idade >= 0.9 ? 1 : idade / 0.9;
+          var e = idade >= 0.55 ? 1 : idade / 0.55;
           e = e * e * (3 - 2 * e);
           ax += (TX[i] - X[i]) * kMax * e;
           ay += (TY[i] - Y[i]) * kMax * e;
@@ -899,31 +905,39 @@
     for (var z = 0; z < N; z++) { X[z] = rand(0, W); Y[z] = rand(0, H); }
   }
 
-  function quandoFonte() {
-    if (fonteOk) return;
+  // Formação: se a Sofia Sans demora (rede lenta), o nome se forma com a fonte
+  // de reserva depois de 1 s e, quando a fonte certa chega, os nós migram para
+  // o novo desenho. Cache quente: forma direto com a fonte certa.
+  var fonteFinal = false;
+  function quandoFonte(provisoria) {
+    if (fonteFinal) return;
+    if (provisoria && fonteOk) return;
+    var jaFormado = fonteOk;
     fonteOk = true;
+    if (!provisoria) fonteFinal = true;
     tamanho();
     construir();
     formado = true;
-    tForma = performance.now() / 1000;
+    tForma = performance.now() / 1000 - (jaFormado ? 0.3 : 0);
     largAnt = W; altAnt = H;
     if (reduzido.matches) desenharEstatico();
-    if (hudAlgo && !reduzido.matches) hudAlgo.textContent = "formando";
+    else if (hudAlgo) hudAlgo.textContent = "formando";
   }
 
   if (document.fonts && document.fonts.load) {
-    var limite = setTimeout(quandoFonte, 2500);
+    var limite = setTimeout(function () { quandoFonte(true); }, 1000);
+    var limiteFinal = setTimeout(function () { quandoFonte(false); }, 6000);
     document.fonts.load('900 100px "Sofia Sans Extra Condensed"').then(function () {
-      return document.fonts.ready;
-    }).then(function () {
       clearTimeout(limite);
-      quandoFonte();
+      clearTimeout(limiteFinal);
+      quandoFonte(false);
     }, function () {
       clearTimeout(limite);
-      quandoFonte();
+      clearTimeout(limiteFinal);
+      quandoFonte(false);
     });
   } else {
-    quandoFonte();
+    quandoFonte(false);
   }
 
   canvas.addEventListener("pointermove", aoMover);
@@ -970,6 +984,6 @@
 
   // Para a prova de desempenho: window.__grafo devolve os números atuais.
   window.__grafo = function () {
-    return { nos: N, arestas: E, soltos: M, arestasSoltas: arestasAmb, passo: passo, dpr: dpr, rodando: rodando, algo: busca && busca.algo };
+    return { nos: N, arestas: E, soltos: M, arestasSoltas: arestasAmb, passo: passo, dpr: dpr, rodando: rodando, algo: busca && busca.algo, tForma: Math.round(tForma * 1000) };
   };
 })();

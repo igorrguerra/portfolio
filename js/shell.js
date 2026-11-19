@@ -361,10 +361,13 @@
       botao.addEventListener("click", function () {
         copiarTexto(contato.email).then(
           function () {
+            // O botão já mostra a confirmação; o aviso só repete para leitores de tela.
             botao.textContent = "E-mail copiado";
+            aviso.classList.add("visualmente-oculto");
             aviso.textContent = "E-mail copiado";
           },
           function () {
+            aviso.classList.remove("visualmente-oculto");
             aviso.textContent = "Não deu para copiar. Selecione o e-mail acima e copie.";
           }
         );
@@ -472,8 +475,24 @@
   montarRodape();
   encaixarRodape();
 
-  var fontesProntas = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-  fontesProntas.then(encaixarRodape);
+  // Os eventos de fonte não bastam: a troca da fonte reserva pela display
+  // acontece depois do document.fonts.ready e o nome saía cortado ("IGOR ROM").
+  // Um ResizeObserver no nome reajusta sempre que a largura dele sair do encaixe.
+  function conferirRodape() {
+    if (!rodapeGigante) return;
+    var estilo = getComputedStyle(rodape);
+    var largura = rodape.clientWidth - px(estilo.paddingLeft) - px(estilo.paddingRight);
+    var medida = rodapeGigante.firstChild.getBoundingClientRect().width;
+    if (largura && Math.abs(medida - largura * 0.99) > largura * 0.01) encaixarRodape();
+  }
+  if (rodapeGigante && window.ResizeObserver) {
+    var quadro = 0;
+    new ResizeObserver(function () {
+      cancelAnimationFrame(quadro);
+      quadro = requestAnimationFrame(conferirRodape);
+    }).observe(rodapeGigante.firstChild);
+  }
+  if (document.fonts) document.fonts.ready.then(conferirRodape);
 
   var timerTela = 0;
   window.addEventListener("resize", function () {
