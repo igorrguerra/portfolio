@@ -62,7 +62,11 @@
     if (email) email.textContent = c.email || "E-mail, GitHub e WhatsApp";
 
     var lista = document.getElementById("home-destaques");
-    var projetos = (D.projetos || []).filter(function (x) { return x.destaque; }).slice(0, 3);
+    // Destaques primeiro; completa até 3 com os demais para a grade não ficar com buraco.
+    var todos = D.projetos || [];
+    var projetos = todos.filter(function (x) { return x.destaque; })
+      .concat(todos.filter(function (x) { return !x.destaque; }))
+      .slice(0, 3);
     if (lista && projetos.length) {
       lista.textContent = "";
       projetos.forEach(function (pr) {

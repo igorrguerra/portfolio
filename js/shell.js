@@ -165,18 +165,10 @@
   // Título display grande + uma linha de contexto, antes da seção da página.
   // O h1 usa o id que a seção já referencia (aria-labelledby="<pagina>-titulo").
   function contextoProjetos() {
+    // Categorias são texto livre no data.js, então não dá para flexionar plural com segurança.
     var lista = DADOS.projetos || [];
     if (!lista.length) return "";
-    var porCategoria = {};
-    lista.forEach(function (p) {
-      if (p.categoria) porCategoria[p.categoria] = (porCategoria[p.categoria] || 0) + 1;
-    });
-    var nomes = { Produto: ["produto", "produtos"], Faculdade: ["trabalho da faculdade", "trabalhos da faculdade"] };
-    var partes = Object.keys(porCategoria).map(function (c) {
-      var n = nomes[c] || [c.toLowerCase(), c.toLowerCase()];
-      return contar(porCategoria[c], n[0], n[1]);
-    });
-    return contar(lista.length, "projeto", "projetos") + (partes.length ? ": " + juntar(partes) + "." : ".") + " Filtre por tecnologia.";
+    return contar(lista.length, "projeto", "projetos") + " com o código e a tecnologia de cada um. Filtre por tecnologia.";
   }
 
   function contextoCertificacoes() {
